@@ -1,10 +1,11 @@
 package com.springboot.obbm.service;
 
+import com.springboot.obbm.constant.PredefinedRole;
 import com.springboot.obbm.dto.request.UserCreationRequest;
 import com.springboot.obbm.dto.request.UserUpdateRequest;
 import com.springboot.obbm.dto.response.UserResponse;
+import com.springboot.obbm.models.Role;
 import com.springboot.obbm.models.User;
-import com.springboot.obbm.enums.Role;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.UserMapper;
@@ -42,9 +43,9 @@ public class UserService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
-//        user.setRoles(roles);
+        HashSet<Role> roles = new HashSet<>();
+        roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+        user.setRoles(roles);
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

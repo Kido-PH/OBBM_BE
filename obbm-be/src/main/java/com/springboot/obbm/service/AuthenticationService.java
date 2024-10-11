@@ -3,6 +3,7 @@ package com.springboot.obbm.service;
 import com.springboot.obbm.dto.request.AuthenticationRequest;
 import com.springboot.obbm.dto.request.IntrospectRequest;
 import com.springboot.obbm.dto.request.LogoutRequest;
+import com.springboot.obbm.dto.request.RefreshRequest;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
 import com.springboot.obbm.models.InvalidatedToken;
@@ -110,6 +111,27 @@ public class AuthenticationService {
                 .expiryTime(expiryTime)
                 .build());
     }
+
+//    public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
+//        var signedJWT = verifyToken(request.getToken());
+//
+//        var jit = signedJWT.getJWTClaimsSet().getJWTID();
+//        var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+//
+//        InvalidatedToken invalidatedToken =
+//                InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
+//
+//        invalidatedTokenRepository.save(invalidatedToken);
+//
+//        var username = signedJWT.getJWTClaimsSet().getSubject();
+//
+//        var user =
+//                userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+//
+//        var token = generateToken(user);
+//
+//        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+//    }
 
     public String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
