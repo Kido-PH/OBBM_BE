@@ -26,7 +26,7 @@ public class SecurityConfig {
             "/auth/token",
             "auth/introspect",
             "/permissions",
-            "/auth/logout" ,
+            "/auth/logout",
     };
 
     @Autowired
