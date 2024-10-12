@@ -27,6 +27,8 @@ public class SecurityConfig {
             "auth/introspect",
             "/permissions",
             "/auth/logout",
+            "/auth/cleanup",
+            "/auth/refresh"
     };
 
     @Autowired

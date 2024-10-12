@@ -3,6 +3,7 @@ package com.springboot.obbm.controller;
 import com.springboot.obbm.dto.request.AuthenticationRequest;
 import com.springboot.obbm.dto.request.IntrospectRequest;
 import com.springboot.obbm.dto.request.LogoutRequest;
+import com.springboot.obbm.dto.request.RefreshRequest;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
@@ -41,6 +42,13 @@ public class AuthenticationController {
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
                 .build();
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefreshRequest request)
+            throws ParseException, JOSEException {
+        var result = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
     @PostMapping("/logout")
