@@ -33,7 +33,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse> handleAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
-
         ApiResponse apiResponse = new ApiResponse();
 
         return ResponseEntity

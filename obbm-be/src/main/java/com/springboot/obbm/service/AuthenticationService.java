@@ -2,8 +2,6 @@ package com.springboot.obbm.service;
 
 import com.springboot.obbm.dto.request.AuthenticationRequest;
 import com.springboot.obbm.dto.request.IntrospectRequest;
-import com.springboot.obbm.dto.request.LogoutRequest;
-import com.springboot.obbm.dto.request.RefreshRequest;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
 import com.springboot.obbm.models.InvalidatedToken;
@@ -17,6 +15,9 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -82,82 +84,117 @@ public class AuthenticationService {
                 .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        var verified = signedJWT.verify(verifier);
-
-        if (!(verified && expiryTime.after(new Date())))
+        if (!signedJWT.verify(verifier) || expiryTime.before(new Date())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
 
-        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
 
         return signedJWT;
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
-
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
-        ;
 
-        var token = generateToken(user);
+        var accessToken = generateAccessToken(user);
+        var refreshToken = generateRefreshToken(user);
+
+        // Set refresh token vào HttpOnly Cookie
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/obbm/auth/refresh");
+        refreshTokenCookie.setMaxAge((int) REFRESHABLE_DURATION);
+
+        response.addCookie(refreshTokenCookie);
 
         return AuthenticationResponse.builder()
-                .token(token)
+                .accessToken(accessToken)
                 .authenticated(true)
                 .build();
     }
 
-    public void logout(LogoutRequest request) throws ParseException, JOSEException {
-        try {
-            var signToken = verifyToken(request.getToken(), true);
+    public AuthenticationResponse refreshToken(HttpServletRequest request) throws ParseException, JOSEException {
 
-            String jit = signToken.getJWTClaimsSet().getJWTID();
-            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+        String refreshToken = getRefreshTokenFromCookies(request);
 
-            InvalidatedToken invalidatedToken =
-                    InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
-
-            invalidatedTokenRepository.save(invalidatedToken);
-        } catch (AppException exception){
-            log.info("Token already expired");
-        }
-    }
-
-    public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
-        var signToken = verifyToken(request.getToken(), true);
-        var jti = signToken.getJWTClaimsSet().getJWTID();
-        var expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
-
-        InvalidatedToken invalidatedToken = InvalidatedToken.builder().id(jti).expiryTime(expiryTime).build();
-        invalidatedTokenRepository.save(invalidatedToken);
-
+        var signToken = verifyToken(refreshToken, true);
         var username = signToken.getJWTClaimsSet().getSubject();
-        var user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        var token = generateToken(user);
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        var newAccessToken = generateAccessToken(user);
+
+        return AuthenticationResponse.builder()
+                .accessToken(newAccessToken)  // Trả về access token mới
+                .authenticated(true)
+                .build();
     }
 
-    public String generateToken(User user) {
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+    public void logout(HttpServletRequest request) throws ParseException, JOSEException {
+        String refreshToken = getRefreshTokenFromCookies(request);
+        invalidateToken(refreshToken, true);
 
+        // Lấy access token từ header Authorization
+        String accessToken = request.getHeader("Authorization");
+        if (accessToken != null && accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.substring(7); // Loại bỏ tiền tố "Bearer "
+            invalidateToken(accessToken, false);
+        }
+        log.info("User logged out and both tokens (access and refresh) are invalidated.");
+    }
+
+    private String generateAccessToken(User user) {
+        return generateToken(user, VALID_DURATION);
+    }
+
+    private String generateRefreshToken(User user) {
+        return generateToken(user, REFRESHABLE_DURATION);
+    }
+
+    private String getRefreshTokenFromCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        return Arrays.stream(cookies)
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+    }
+
+    private void invalidateToken(String token, boolean isRefresh) throws ParseException, JOSEException {
+        var signedToken = verifyToken(token, isRefresh);
+
+        String tokenJti = signedToken.getJWTClaimsSet().getJWTID();
+        Date tokenExpiryTime = signedToken.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(tokenJti)
+                .expiryTime(tokenExpiryTime)
+                .build();
+        invalidatedTokenRepository.save(invalidatedToken);
+    }
+
+    public String generateToken(User user, long duration) {
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
                 .issuer("kido.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
+                        Instant.now().plus(duration, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))  // Chứa các quyền (roles) của người dùng
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-
         JWSObject jwsObject = new JWSObject(header, payload);
 
         try {
@@ -185,14 +222,12 @@ public class AuthenticationService {
         return stringJoiner.toString();
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // Mỗi ngày vào lúc 0:00
+    @Scheduled(cron = "0 0 0 * * ?")  // Clean expired tokens daily
     @Transactional
     public void cleanExpiredTokens() {
-        log.info("Cleaning expired tokens... ");
-
+        log.info("Cleaning expired tokens...");
         Date now = new Date();
         int deletedCount = invalidatedTokenRepository.deleteByExpiryTimeBefore(now);
-
         log.info("Cleanup completed. Total expired tokens deleted: " + deletedCount);
     }
 }

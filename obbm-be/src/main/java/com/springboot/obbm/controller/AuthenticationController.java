@@ -2,13 +2,13 @@ package com.springboot.obbm.controller;
 
 import com.springboot.obbm.dto.request.AuthenticationRequest;
 import com.springboot.obbm.dto.request.IntrospectRequest;
-import com.springboot.obbm.dto.request.LogoutRequest;
-import com.springboot.obbm.dto.request.RefreshRequest;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
 import com.springboot.obbm.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,12 +27,12 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
 
     @PostMapping("/token")
-    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-        var result = authenticationService.authenticate(request);
-        ApiResponse<AuthenticationResponse> response = ApiResponse.<AuthenticationResponse>builder()
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request, HttpServletResponse response) {
+        var result = authenticationService.authenticate(request, response);
+        ApiResponse<AuthenticationResponse> apiResponse = ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
                 .build();
-        return response;
+        return apiResponse;
     }
 
     @PostMapping("/introspect")
@@ -45,14 +45,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefreshRequest request)
+    ApiResponse<AuthenticationResponse> authenticate(HttpServletRequest request)
             throws ParseException, JOSEException {
         var result = authenticationService.refreshToken(request);
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> logout(@RequestBody LogoutRequest request)
+    ApiResponse<Void> logout(HttpServletRequest request)
             throws ParseException, JOSEException {
         authenticationService.logout(request);
         return ApiResponse.<Void>builder()
