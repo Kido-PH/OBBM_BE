@@ -4,6 +4,8 @@ package com.springboot.obbm.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -13,31 +15,32 @@ public class Dish {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int dishId;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category cates;
-
     @Column(name = "dish_name")
-    private String dishName;
-
-    @Column(name = "dish_image")
-    private String dishImage;
+    private String name;
 
     @Column(name = "dish_price")
-    private double dishPrice;
+    private double price;
 
-    @Column(name = "dish_existing")
-    private String dishExisting;
+    @Column(name = "dish_image")
+    private String image;
 
     @Column(name = "dish_description")
-    private String dishDescription;
+    private String description;
 
-    @Column(name = "isdeleted")
-    private boolean isDeleted;
+    @Column(name = "dish_existing")
+    private String existing;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category categories;
+
+     @OneToMany(mappedBy = "dishes")
+    private List<MenuDish> listMenuDish;
 
     @OneToMany(mappedBy = "dishes")
-    private Set<MenuDish> listMenuDish;
+    private List<DishIngredient> listDishIngredient;
 
-    @OneToMany(mappedBy = "dishes")
-    private Set<DishIngredient> listDishIngredient;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

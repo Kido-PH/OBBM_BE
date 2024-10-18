@@ -3,8 +3,8 @@ package com.springboot.obbm.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity(name = "menu")
@@ -13,16 +13,24 @@ public class Menu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int menuId;
 
+    @Column(name = "menu_name")
+    private String name;
+
+    @Column(name = "menu_description")
+    private String description;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User users;
 
-    @Column(name = "menu_datecreate")
-    private Date menuDateCreate;
-
-    @Column(name = "menu_type")
-    private String menuType;
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event events;
 
     @OneToMany(mappedBy = "menus")
-    private Set<MenuDish> listMenuDish;
+    private List<MenuDish> listMenuDish;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

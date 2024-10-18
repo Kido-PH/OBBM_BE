@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -18,14 +20,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     String userId;
 
-    @Column(name = "user_account")
+    @Column(name = "user_account", unique = true, columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
     String username;
 
     @Column(name = "user_password")
     String password;
 
     @Column(name = "user_fullname")
-    String fullName;
+    String fullname;
 
     @Column(name = "user_email")
     String email;
@@ -39,24 +41,22 @@ public class User {
     @Column(name = "user_citizenidentity")
     String citizenIdentity;
 
-    @Column(name = "user_Dob")
+    @Column(name = "user_dob")
     LocalDate dob;
 
-    @Column(name = "user_status")
-    boolean status;
-
-    @Column(name = "isdeleted")
-    boolean isDeleted;
+    @OneToMany(mappedBy = "users")
+    List<Location> listLocation;
 
     @OneToMany(mappedBy = "users")
-    Set<Location> listLocation;
+    List<Menu> listMenu;
 
     @OneToMany(mappedBy = "users")
-    Set<Menu> listMenu;
-
-    @OneToMany(mappedBy = "users")
-    Set<Contract> listContract;
+    List<Contract> listContract;
 
     @ManyToMany
     Set<Role> roles;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

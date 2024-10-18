@@ -3,6 +3,8 @@ package com.springboot.obbm.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -13,20 +15,24 @@ public class Event {
     private int eventId;
 
     @Column(name = "event_name")
-    private String eventName;
+    private String name;
 
     @Column(name = "event_totalcost")
-    private double eventTotalCost;
+    private double totalcost;
 
     @Column(name = "event_description")
-    private String eventDescription;
-
-    @Column(name = "isdeleted")
-    private boolean isDeleted;
+    private String description;
 
     @OneToMany(mappedBy = "events")
-    private Set<EventService> listEventService;
+    private List<Menu> listMenu;
 
     @OneToMany(mappedBy = "events")
-    private Set<Contract> listContract;
+    private List<EventService> listEventService;
+
+    @OneToMany(mappedBy = "events")
+    private List<Contract> listContract;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

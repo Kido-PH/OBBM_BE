@@ -3,6 +3,7 @@ package com.springboot.obbm.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -10,7 +11,22 @@ import java.util.Date;
 public class StockRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int stockRequestId;
+    private int stockrequestId;
+
+    @Column(name = "stockrequest_quantity")
+    private int quantity;
+
+    @Column(name = "stockrequest_approval")
+    private String approval;
+
+    @Column(name = "stockrequest_requestdate")
+    private Date requestdate;
+
+    @Column(name = "stockrequest_receiveddate ")
+    private Date receiveddate ;
+
+    @Column(name = "stockrequest_status")
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "contract_id")
@@ -20,20 +36,7 @@ public class StockRequest {
     @JoinColumn(name = "ingredient_id")
     private Ingredient ingredients;
 
-    @Column(name = "stockrequest_quantity")
-    private int stockRequestQuantity;
-
-    @Column(name = "stockrequest_approval")
-    private String stockRequestApproval;
-
-    @Column(name = "stockrequest_receiveddate ")
-    private Date stockRequestReceivedDate ;
-
-    @Column(name = "stockrequest_date")
-    private Date stockRequestDate;
-
-    @Column(name = "stockrequest_status")
-    private String stockRequestStatus;
-
-
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

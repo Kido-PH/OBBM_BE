@@ -3,12 +3,20 @@ package com.springboot.obbm.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity(name = "dishingredient")
 public class DishIngredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int dishIngredientId;
+    private int dishingredientId;
+
+    @Column(name = "dishingredient_quantity")
+    private String quantity;
+
+    @Column(name = "dishingredient_desc")
+    private String desc;
 
     @ManyToOne
     @JoinColumn(name = "dish_id")
@@ -18,6 +26,7 @@ public class DishIngredient {
     @JoinColumn(name = "ingredient_id")
     private Ingredient ingredients;
 
-    @Column(name = "dishingredient_quantity")
-    private int dishIngredientQuantity;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

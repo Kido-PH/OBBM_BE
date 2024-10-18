@@ -3,7 +3,9 @@ package com.springboot.obbm.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity(name = "ingredient")
@@ -13,17 +15,21 @@ public class Ingredient {
     private int ingredientId;
 
     @Column(name = "ingredient_name")
-    private String ingredientName;
+    private String name;
 
     @Column(name = "ingredient_unit")
-    private String ingredientUnit;
+    private String unit;
 
     @Column(name = "ingredient_transdate")
-    private Date ingredientTransDate;
+    private Date transdate;
 
     @Column(name = "ingredient_desc")
-    private String ingredientDesc;
+    private String desc;
 
-    @Column(name = "isdeleted")
-    private boolean isDeleted;
+    @OneToMany(mappedBy = "ingredients")
+    private List<StockRequest> listStockrequest;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

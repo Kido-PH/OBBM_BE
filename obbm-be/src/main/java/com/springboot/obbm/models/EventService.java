@@ -3,12 +3,21 @@ package com.springboot.obbm.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity(name = "eventservice")
 public class EventService {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int eventServiceId;
+    private int eventserviceId;
+
+
+    @Column(name = "eventservice_quantity")
+    private int quantity;
+
+    @Column(name = "eventservice_cost")
+    private double cost;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
@@ -18,9 +27,7 @@ public class EventService {
     @JoinColumn(name = "service_id")
     private Service services;
 
-    @Column(name = "eventservice_cost")
-    private double eventServiceCost;
-
-    @Column(name = "eventservice_quantity")
-    private int eventServiceQuantity;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }
