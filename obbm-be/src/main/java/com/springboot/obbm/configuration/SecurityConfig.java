@@ -1,7 +1,6 @@
 package com.springboot.obbm.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,35 +13,36 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity()
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity()
 @EnableScheduling  // Kích hoạt các nhiệm vụ định kỳ
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users",
-            "/auth/token",
-            "auth/introspect",
-            "/permissions",
-            "/auth/logout",
-            "/auth/cleanup",
-            "/auth/refresh"
+            "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
     };
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
-    @Value("${jwt.signerKey}")
-    private String signerKey;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.authorizeHttpRequests(request ->
+        {
+            try {
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated()
+                        .and().oauth2ResourceServer().jwt();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         // Chuyển đổi thông tin quyền từ token thành quyền trong Spring
         httpSecurity.oauth2ResourceServer(oauth2 ->
@@ -55,6 +55,21 @@ public class SecurityConfig {
 
         httpSecurity.csrf(AbstractHttpConfigurer -> AbstractHttpConfigurer.disable());
         return httpSecurity.build();
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+
+        corsConfiguration.addAllowedOrigin("http://localhost:3000");  // Liệt kê rõ nguồn gốc cụ thể
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.setAllowCredentials(true);  // Bật credentials
+
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+
+        return new CorsFilter(urlBasedCorsConfigurationSource);
     }
 
     @Bean

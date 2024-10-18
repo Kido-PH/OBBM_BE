@@ -3,6 +3,8 @@ package com.springboot.obbm.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity(name = "category")
 public class Category {
@@ -11,9 +13,12 @@ public class Category {
     private int categoryId;
 
     @Column(name = "category_name")
-    private String categoryName;
+    private String name;
 
     @Column(name = "category_description")
-    private String categoryDescription;
+    private String description;
 
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

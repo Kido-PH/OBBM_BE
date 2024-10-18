@@ -76,6 +76,8 @@ public class AuthenticationService {
     }
 
     private SignedJWT verifyToken(String token, boolean isRefresh) throws ParseException, JOSEException {
+        log.info("Verifying Token: {}", token);  // Log token từ client gửi lên
+
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
 
@@ -109,7 +111,7 @@ public class AuthenticationService {
         // Set refresh token vào HttpOnly Cookie
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(false);
         refreshTokenCookie.setPath("/obbm/auth/refresh");
         refreshTokenCookie.setMaxAge((int) REFRESHABLE_DURATION);
 

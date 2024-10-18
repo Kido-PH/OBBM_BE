@@ -35,9 +35,6 @@ public class UserService {
     UserMapper userMapper;
 
     public UserResponse createUser(UserCreationRequest request) {
-        if (userRepository.existsByUsername(request.getUsername()))
-            throw new AppException(ErrorCode.USER_EXISTED);
-
         User user = userMapper.toUser(request);
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -68,7 +65,6 @@ public class UserService {
         userRepository.deleteById(userID);
     }
 
-
     public UserResponse getMyInfo(){
 
         var context = SecurityContextHolder.getContext();
@@ -83,7 +79,6 @@ public class UserService {
     @PreAuthorize("hasRole('ADMIN')")
 //    @PreAuthorize("hasAuthority('APPROVE_POST')")
     public List<UserResponse> getAllUsers() {
-        log.info("In method getUsers");
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse).toList();
     }
