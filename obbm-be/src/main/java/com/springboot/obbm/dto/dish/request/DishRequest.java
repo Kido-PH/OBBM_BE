@@ -1,4 +1,4 @@
-package com.springboot.obbm.dto.dish.response;
+package com.springboot.obbm.dto.dish.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,11 +8,11 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DishResponse {
-    private int dishId;
+public class DishRequest {
     private String name;
     private double price;
     private String image;
     private String description;
     private String existing;
+    private int categoryId;
 }

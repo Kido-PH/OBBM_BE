@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/category")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryController {
@@ -25,7 +25,6 @@ public class CategoryController {
             int adjustedPage = (page > 0) ? page - 1 : 0;
             return ApiResponse.<PageImpl<CategoryResponse>>builder()
                     .result(categoryService.getAllCategories(adjustedPage,size))
-                    .message("Meetings fetched successfully")
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -40,7 +39,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    ApiResponse<CategoryResponse> createCategory(@PathVariable CategoryRequest request){
+    ApiResponse<CategoryResponse> createCategory(@RequestBody CategoryRequest request){
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.createCategory(request))
                 .build();

@@ -19,6 +19,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1007, "Bạn không có quyền", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Tuổi của bạn phải ít nhất {min}", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_EXISTED(1009, "Danh mục không tồn tại", HttpStatus.NOT_FOUND),
+    DISH_NOT_EXISTED(1010, "Món ăn không tồn tại", HttpStatus.NOT_FOUND),
     ;
 
     int code;
