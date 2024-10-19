@@ -34,7 +34,7 @@ public class Dish {
     @JoinColumn(name = "category_id")
     private Category categories;
 
-     @OneToMany(mappedBy = "dishes")
+    @OneToMany(mappedBy = "dishes")
     private List<MenuDish> listMenuDish;
 
     @OneToMany(mappedBy = "dishes")
