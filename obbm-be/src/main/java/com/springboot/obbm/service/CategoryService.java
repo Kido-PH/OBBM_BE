@@ -54,7 +54,7 @@ public class CategoryService {
                 () -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
         category.setUpdatedAt(LocalDateTime.now());
 
-        categoryMapper.upadteCaterogy(category, request);
+        categoryMapper.updateCaterogy(category, request);
         return categoryMapper.toCategoryResponse(categoryRespository.save(category));
     }
 

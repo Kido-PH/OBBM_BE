@@ -12,6 +12,7 @@ public class DobValidator implements ConstraintValidator<DobConstraint, LocalDat
 
     @Override
     public void initialize(DobConstraint constraintAnnotation) {
+
         min = constraintAnnotation.min();
     }
 
