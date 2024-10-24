@@ -53,7 +53,6 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
-
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
         String enumKey = exception.getFieldError().getDefaultMessage();

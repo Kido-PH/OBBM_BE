@@ -1,5 +1,9 @@
 package com.springboot.obbm.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,6 +13,7 @@ import java.util.List;
 
 @Data
 @Entity(name = "contract")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,11 +25,17 @@ public class Contract {
     @Column(name = "contract_type")
     private String type;
 
+    @Column(name = "contract_guest")
+    private int guest;
+
+    @Column(name = "contract_table")
+    private int table;
+
     @Column(name = "contract_totalcost")
     private double totalcost;
 
     @Column(name = "contract_status")
-    private boolean status;
+    private String status;
 
     @Column(name = "contract_paymentstatus")
     private String paymentstatus;
