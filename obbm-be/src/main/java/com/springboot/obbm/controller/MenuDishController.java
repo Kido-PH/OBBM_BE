@@ -1,5 +1,6 @@
 package com.springboot.obbm.controller;
 
+import com.springboot.obbm.dto.menudish.request.MenuDishRequest;
 import com.springboot.obbm.dto.menudish.response.MenuDishResponse;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.service.MenuDishService;
@@ -30,6 +31,38 @@ public class MenuDishController {
         }
     }
 
+    @GetMapping("/byMenu")
+    public ApiResponse<PageImpl<MenuDishResponse>> getMenuDishByMenuId(
+            @RequestParam int menuId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<MenuDishResponse>>builder()
+                    .result(menuDishService.getMenuDishByMenuId(menuId, adjustedPage, size))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/byDish")
+    public ApiResponse<PageImpl<MenuDishResponse>> getMenuDishByDishId(
+            @RequestParam int dishId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<MenuDishResponse>>builder()
+                    .result(menuDishService.getMenuDishByDishId(dishId, adjustedPage, size))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @GetMapping("/{id}")
     ApiResponse<MenuDishResponse> getDish(@PathVariable int id) {
         return ApiResponse.<MenuDishResponse>builder()
@@ -37,26 +70,26 @@ public class MenuDishController {
                 .build();
     }
 
-//    @PostMapping
-//    ApiResponse<MenuMenuDishResponse> createDish(@RequestBody @Valid DishRequest request) {
-//        return ApiResponse.<MenuMenuDishResponse>builder()
-//                .result(menuDishService.createDish(request))
-//                .build();
-//    }
-//
-//    @PutMapping("/{id}")
-//    ApiResponse<MenuMenuDishResponse> updateDish(@PathVariable int id, @RequestBody @Valid DishRequest request) {
-//        return ApiResponse.<MenuMenuDishResponse>builder()
-//                .result(menuDishService.updateDish(id, request))
-//                .build();
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    ApiResponse<?> deleteDish(@PathVariable int id) {
-//        menuDishService.deleteDish(id);
-//        return ApiResponse.builder()
-//                .message("Món ăn đã bị xóa.")
-//                .build();
-//    }
+    @PostMapping
+    public ApiResponse<MenuDishResponse> createDish(@RequestBody MenuDishRequest request) {
+        return ApiResponse.<MenuDishResponse>builder()
+                .result(menuDishService.createMenuDish(request))
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<MenuDishResponse> updateDish(@PathVariable int id, @RequestBody MenuDishRequest request) {
+        return ApiResponse.<MenuDishResponse>builder()
+                .result(menuDishService.updateMenuDish(id, request))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> deleteDish(@PathVariable int id) {
+        menuDishService.deleteMenuDish(id);
+        return ApiResponse.builder()
+                .message("Thực đơn món ăn đã bị xóa.")
+                .build();
+    }
 
 }

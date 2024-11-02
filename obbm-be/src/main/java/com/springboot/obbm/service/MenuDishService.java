@@ -1,5 +1,6 @@
 package com.springboot.obbm.service;
 
+import com.springboot.obbm.dto.menudish.request.MenuDishRequest;
 import com.springboot.obbm.dto.menudish.response.MenuDishResponse;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -41,39 +44,57 @@ public class MenuDishService {
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn")));
     }
 
-//    public MenuDishResponse getMenuDishByMenuId(int id) {
-//        return menuDishMapper.toMenuDishResponse(menuDishRespository.findByMenuDishIdAndDeletedAtIsNull(id)
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn")));
-//    }
+    public PageImpl<MenuDishResponse> getMenuDishByMenuId(int menuId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MenuDish> menuDishPage = menuDishRespository.findAllByMenus_MenuIdAndDeletedAtIsNull(menuId, pageable);
 
-//    public MenuResponse createMenu(MenuCreateRequest request) {
-//        User user = menuDishRespository.findById(request.getUserId())
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
-//        Event event = dishRespository.findById(request.getEventId())
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
-//        Menu menu = menuMapper.toMenu(request);
-//        menu.setCreatedAt(LocalDateTime.now());
-//        menu.setUsers(user);
-//        menu.setEvents(event);
-//        return menuMapper.toMenuResponse(menuRespository.save(menu));
-//    }
-//
-//    public MenuResponse updateMenu(int id, MenuUpdateRequest request) {
-//        Menu menu = menuRespository.findByMenuIdAndDeletedAtIsNull(id).orElseThrow(
-//                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
-//        Event event = dishRespository.findById(request.getEventId())
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
-//        menu.setCreatedAt(LocalDateTime.now());
-//        menu.setEvents(event);
-//        menuMapper.updateMenu(menu, request);
-//        return menuMapper.toMenuResponse(menuRespository.save(menu));
-//    }
-//
-//    public void deleteMenu(int id) {
-//        Menu menu = menuRespository.findByMenuIdAndDeletedAtIsNull(id).orElseThrow(
-//                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
-//
-//        menu.setDeletedAt(LocalDateTime.now());
-//        menuRespository.save(menu);
-//    }
+        var responseList = menuDishPage.getContent().stream()
+                .map(menuDishMapper::toMenuDishResponse)
+                .toList();
+        return new PageImpl<>(responseList, pageable, menuDishPage.getTotalElements());
+    }
+
+    public PageImpl<MenuDishResponse> getMenuDishByDishId(int dishId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MenuDish> menuDishPage = menuDishRespository.findAllByDishes_DishIdAndDeletedAtIsNull(dishId, pageable);
+
+        var responseList = menuDishPage.getContent().stream()
+                .map(menuDishMapper::toMenuDishResponse)
+                .toList();
+        return new PageImpl<>(responseList, pageable, menuDishPage.getTotalElements());
+    }
+
+    public MenuDishResponse createMenuDish(MenuDishRequest request) {
+        Menu menu = menuRespository.findById(request.getMenuId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
+        Dish dish = dishRespository.findById(request.getDisheId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
+        MenuDish menuDish = menuDishMapper.toMenuDish(request);
+        menuDish.setCreatedAt(LocalDateTime.now());
+        menuDish.setMenus(menu);
+        menuDish.setDishes(dish);
+        return menuDishMapper.toMenuDishResponse(menuDishRespository.save(menuDish));
+    }
+
+    public MenuDishResponse updateMenuDish(int id, MenuDishRequest request) {
+        MenuDish menuDish = menuDishRespository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn"));
+        Dish dish = dishRespository.findById(request.getDisheId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
+        Menu menu = menuRespository.findById(request.getMenuId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
+        menuDish.setUpdatedAt(LocalDateTime.now());
+        menuDish.setMenus(menu);
+        menuDish.setDishes(dish);
+        menuDishMapper.updateMenuDish(menuDish, request);
+        return menuDishMapper.toMenuDishResponse(menuDishRespository.save(menuDish));
+    }
+
+    public void deleteMenuDish(int id) {
+        MenuDish menuDish = menuDishRespository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn"));
+
+        menuDish.setDeletedAt(LocalDateTime.now());
+        menuDishRespository.save(menuDish);
+    }
 }

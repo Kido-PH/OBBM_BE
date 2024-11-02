@@ -13,4 +13,8 @@ public interface MenuDishRespository extends JpaRepository<MenuDish, Integer> {
     Page<MenuDish> findAllByDeletedAtIsNull(Pageable pageable);
 
     Optional<MenuDish> findByMenudishIdAndDeletedAtIsNull(int id);
+
+    Page<MenuDish> findAllByMenus_MenuIdAndDeletedAtIsNull(int menuId, Pageable pageable);
+
+    Page<MenuDish> findAllByDishes_DishIdAndDeletedAtIsNull(int dishId, Pageable pageable);
 }
