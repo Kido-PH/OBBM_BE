@@ -1,20 +1,15 @@
-package com.springboot.obbm.dto.response;
+package com.springboot.obbm.dto.menu.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserResponse {
+public class UserForMenuResponse {
     String userId;
     String username;
     String fullname;
-    LocalDate dob;
-    Set<RoleResponse> roles;
 }

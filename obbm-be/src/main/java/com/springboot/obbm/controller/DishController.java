@@ -4,6 +4,7 @@ import com.springboot.obbm.dto.dish.request.DishRequest;
 import com.springboot.obbm.dto.dish.response.DishResponse;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.service.DishService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -39,14 +40,14 @@ public class DishController {
     }
 
     @PostMapping
-    ApiResponse<DishResponse> createDish(@RequestBody DishRequest request) {
+    ApiResponse<DishResponse> createDish(@RequestBody @Valid DishRequest request) {
         return ApiResponse.<DishResponse>builder()
                 .result(dishService.createDish(request))
                 .build();
     }
 
     @PutMapping("/{id}")
-    ApiResponse<DishResponse> updateDish(@PathVariable int id, @RequestBody DishRequest request) {
+    ApiResponse<DishResponse> updateDish(@PathVariable int id, @RequestBody @Valid DishRequest request) {
         return ApiResponse.<DishResponse>builder()
                 .result(dishService.updateDish(id, request))
                 .build();

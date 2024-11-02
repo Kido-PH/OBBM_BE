@@ -10,5 +10,5 @@ import org.mapstruct.MappingTarget;
 public interface CategoryMapper {
     Category toCategory(CategoryRequest request);
     CategoryResponse toCategoryResponse(Category category);
-    void updateCaterogy(@MappingTarget Category category, CategoryRequest  request);
+    void updateCategory(@MappingTarget Category category, CategoryRequest  request);
 }

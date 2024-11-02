@@ -1,38 +1,53 @@
 package com.springboot.obbm.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
 @Entity(name = "invoice")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
 public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int invoiceId;
+    Integer invoiceId;
 
     @Column(name = "invoice_content")
-    private String content;
+    String content;
 
     @Column(name = "invoice_duedate")
-    private Date duedate;
+    Date duedate;
 
     @Column(name = "invoice_payment")
-    private String payment;
+    String payment;
 
     @Column(name = "invoice_totalamount")
-    private double totalamount;
+    Double totalamount;
 
     @Column(name = "invoice_status")
-    private Boolean status;
+    Boolean status;
 
     @ManyToOne
     @JoinColumn(name = "contract_id")
-    private Contract contracts;
+    Contract contracts;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void trimFields(){
+        StringFieldTrimmer.trimAndNormalizeStringFields(this);
+    }
 }

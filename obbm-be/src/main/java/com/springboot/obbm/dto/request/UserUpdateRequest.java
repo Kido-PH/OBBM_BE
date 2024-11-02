@@ -1,6 +1,6 @@
 package com.springboot.obbm.dto.request;
 
-import com.springboot.obbm.validator.DobConstraint;
+import com.springboot.obbm.validator.dob.DobConstraint;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

@@ -1,7 +1,6 @@
 package com.springboot.obbm.dto.contract.response;
 
 import com.springboot.obbm.dto.stockrequest.response.StockrequestResponse;
-import com.springboot.obbm.models.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -27,6 +26,10 @@ public class ContractResponse {
     String custname;
     String custphone;
     String custmail;
+    UserForContractResponse users;
+    LocationForContractResponse locations;
+    EventForContractResponse events;
+    MenuForContractResponse menus;
     List<StockrequestResponse> listStockrequests;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

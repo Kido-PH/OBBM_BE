@@ -3,7 +3,7 @@ package com.springboot.obbm.service;
 import com.springboot.obbm.constant.PredefinedRole;
 import com.springboot.obbm.dto.request.UserCreationRequest;
 import com.springboot.obbm.dto.request.UserUpdateRequest;
-import com.springboot.obbm.dto.response.UserResponse;
+import com.springboot.obbm.dto.user.response.UserResponse;
 import com.springboot.obbm.models.Role;
 import com.springboot.obbm.models.User;
 import com.springboot.obbm.exception.AppException;
@@ -49,7 +49,7 @@ public class UserService {
 
     public UserResponse updateUser(String userID, UserUpdateRequest request) {
         User user = userRepository.findById(userID).orElseThrow(
-                () -> new RuntimeException("User not found"));
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
         userMapper.upadteUser(user, request);
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -65,13 +65,13 @@ public class UserService {
         userRepository.deleteById(userID);
     }
 
-    public UserResponse getMyInfo(){
+    public UserResponse getMyInfo() {
 
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
 
         User user = userRepository.findByUsername(name).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
 
         return userMapper.toUserResponse(user);
     }
@@ -85,9 +85,7 @@ public class UserService {
 
     @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse getUser(String id) {
-        log.info("In method getUser by Id");
         return userMapper.toUserResponse(userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found")
-                ));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng")));
     }
 }

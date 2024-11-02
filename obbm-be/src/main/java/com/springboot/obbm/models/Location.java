@@ -1,47 +1,68 @@
 package com.springboot.obbm.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Entity(name = "location")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int locationId;
+    Integer locationId;
 
     @Column(name = "location_name")
-    private String name;
+    String name;
 
     @Column(name = "location_type")
-    private String type;
+    String type;
 
     @Column(name = "location_address")
-    private String address;
+    String address;
 
     @Column(name = "location_capacity")
-    private int capacity;
+    Integer capacity;
 
     @Column(name = "location_table")
-    private int table;
+    Integer table;
 
     @Column(name = "location_cost")
-    private double cost;
+    Double cost;
 
     @Column(name = "location_description")
-    private String description;
+    String description;
+
+    @Column(name = "location_iscustom")
+    Boolean isCustom;
+
+    @Column(name = "location_status")
+    String status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User users;
+    User users;
 
     @OneToMany(mappedBy = "locations")
-    private List<Contract> listContract;
+    List<Contract> listContract;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void trimFields(){
+        StringFieldTrimmer.trimAndNormalizeStringFields(this);
+    }
 }

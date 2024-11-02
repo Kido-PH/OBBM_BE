@@ -3,6 +3,8 @@ package com.springboot.obbm.dto.dish.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,4 +17,7 @@ public class DishResponse {
     private String image;
     private String description;
     private String existing;
+    CategoryForDishResponse categories;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

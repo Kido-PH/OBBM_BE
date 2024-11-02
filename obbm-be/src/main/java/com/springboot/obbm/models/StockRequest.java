@@ -1,9 +1,8 @@
 package com.springboot.obbm.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,32 +15,38 @@ import java.util.Date;
 public class StockRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int stockrequestId;
+    Integer stockrequestId;
 
     @Column(name = "stockrequest_quantity")
-    private int quantity;
+    Integer quantity;
 
     @Column(name = "stockrequest_approval")
-    private String approval;
+    String approval;
 
     @Column(name = "stockrequest_requestdate")
-    private Date requestdate;
+    Date requestdate;
 
     @Column(name = "stockrequest_receiveddate ")
-    private Date receiveddate ;
+    Date receiveddate ;
 
     @Column(name = "stockrequest_status")
-    private String status;
+    String status;
 
     @ManyToOne
     @JoinColumn(name = "contract_id")
-    private Contract contracts;
+    Contract contracts;
 
     @ManyToOne
     @JoinColumn(name = "ingredient_id")
-    private Ingredient ingredients;
+    Ingredient ingredients;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void trimFields(){
+        StringFieldTrimmer.trimAndNormalizeStringFields(this);
+    }
 }

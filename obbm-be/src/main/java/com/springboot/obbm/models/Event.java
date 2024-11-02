@@ -1,7 +1,11 @@
 package com.springboot.obbm.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,30 +13,41 @@ import java.util.Set;
 
 @Data
 @Entity(name = "event")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int eventId;
+    Integer eventId;
 
     @Column(name = "event_name")
-    private String name;
+    String name;
 
     @Column(name = "event_totalcost")
-    private double totalcost;
+    Double totalcost;
 
     @Column(name = "event_description")
-    private String description;
+    String description;
 
     @OneToMany(mappedBy = "events")
-    private List<Menu> listMenu;
+    List<Menu> listMenu;
 
     @OneToMany(mappedBy = "events")
-    private List<EventService> listEventService;
+    List<EventService> listEventService;
 
     @OneToMany(mappedBy = "events")
-    private List<Contract> listContract;
+    List<Contract> listContract;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void trimFields(){
+        StringFieldTrimmer.trimAndNormalizeStringFields(this);
+    }
 }

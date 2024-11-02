@@ -42,13 +42,13 @@ public class DishService {
 
     public DishResponse getDishById(int id) {
         return dishMapper.toDishResponse(dishRespository.findByDishIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new AppException(ErrorCode.DISH_NOT_EXISTED)));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn")));
     }
 
     public DishResponse createDish(DishRequest request){
         Dish dish = dishMapper.toDish(request);
         Category category = categoryRespository.findById(request.getCategoryId())
-                .orElseThrow( () -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+                .orElseThrow( () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
         dish.setCategories(category);
         dish.setCreatedAt(LocalDateTime.now());
 
@@ -57,9 +57,9 @@ public class DishService {
 
     public DishResponse updateDish(int id, DishRequest request){
         Dish dish = dishRespository.findByDishIdAndDeletedAtIsNull(id).orElseThrow(
-                () -> new AppException(ErrorCode.DISH_NOT_EXISTED));
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
         Category category = categoryRespository.findById(request.getCategoryId())
-                .orElseThrow( () -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+                .orElseThrow( () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
         dish.setCategories(category);
         dish.setCreatedAt(LocalDateTime.now());
 
@@ -69,7 +69,7 @@ public class DishService {
 
     public void deleteDish(int id) {
         Dish dish = dishRespository.findByDishIdAndDeletedAtIsNull(id).orElseThrow(
-                () -> new AppException(ErrorCode.DISH_NOT_EXISTED));
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
 
         dish.setDeletedAt(LocalDateTime.now());
         dishRespository.save(dish);
