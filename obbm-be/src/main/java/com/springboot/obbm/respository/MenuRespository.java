@@ -1,6 +1,5 @@
 package com.springboot.obbm.respository;
 
-import com.springboot.obbm.models.Category;
 import com.springboot.obbm.models.Menu;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

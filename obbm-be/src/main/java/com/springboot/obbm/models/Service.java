@@ -1,35 +1,43 @@
 package com.springboot.obbm.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Entity(name = "service")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
 public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int serviceId;
+    Integer serviceId;
 
     @Column(name = "service_name")
-    private String name;
+    String name;
 
     @Column(name = "service_type")
-    private String type;
+    String type;
 
     @Column(name = "service_price")
-    private double price;
+    Double price;
 
     @Column(name = "service_description")
-    private String description;
+    String description;
 
     @Column(name = "service_status")
-    private boolean status;
+    Boolean status;
 
     @OneToMany(mappedBy = "services")
-    private List<EventService> listEventService;
+    List<EventService> listEventService;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

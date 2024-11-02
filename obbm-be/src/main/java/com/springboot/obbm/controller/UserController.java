@@ -3,7 +3,7 @@ package com.springboot.obbm.controller;
 import com.springboot.obbm.dto.request.UserCreationRequest;
 import com.springboot.obbm.dto.request.UserUpdateRequest;
 import com.springboot.obbm.dto.response.ApiResponse;
-import com.springboot.obbm.dto.response.UserResponse;
+import com.springboot.obbm.dto.user.response.UserResponse;
 import com.springboot.obbm.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;

@@ -23,9 +23,8 @@ jwt:
   valid-duration: 1800 # in second
   refreshable-duration: 1209600 # in seconds
 
-openapi:
-  service:
-    api-docs: api-service
-    server: http://localhost:8080
-    title: API Service
-    version: 1.0.0
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

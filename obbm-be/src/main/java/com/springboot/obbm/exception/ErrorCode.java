@@ -14,19 +14,29 @@ public enum ErrorCode {
     INVALID_KEY(1001, "Lỗi chưa được phân loại", HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(1003, "Tên đăng nhập phải có ít nhất {min} ký tự", HttpStatus.BAD_REQUEST),
     INVALID_PASSWORD(1004, "Mật khẩu phải có ít nhất {min} ký tự", HttpStatus.BAD_REQUEST),
-    USER_NOT_EXISTED(1005, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1006, "Chưa xác thực", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "Bạn không có quyền", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Tuổi của bạn phải ít nhất {min}", HttpStatus.BAD_REQUEST),
-    CATEGORY_NOT_EXISTED(1009, "Danh mục không tồn tại", HttpStatus.NOT_FOUND),
-    LOCATION_NOT_EXISTED(1010, "Địa điểm không tồn tại", HttpStatus.NOT_FOUND),
-    EVENT_NOT_EXISTED(1011, "Sự kiện không tồn tại", HttpStatus.NOT_FOUND),
-    CONTRACT_NOT_EXISTED(1012, "Hợp đồng không tồn tại", HttpStatus.NOT_FOUND),
-    DISH_NOT_EXISTED(1013, "Món ăn không tồn tại", HttpStatus.NOT_FOUND),
-    MENU_NOT_EXISTED(1013, "Thực đơn không tồn tại", HttpStatus.NOT_FOUND),
+
+    OBJECT_NOT_EXISTED(1009, "%s không tồn tại", HttpStatus.NOT_FOUND),
+    OBJECT_EXISTED(1010, "%s đã tồn tại", HttpStatus.NOT_FOUND),
+    FIELD_NOT_BLANK(1011, "{field} không được bỏ trống!", HttpStatus.BAD_REQUEST),
+    FIELD_FUTURE(1012, "{field} phải là thời gian trong tương lai!", HttpStatus.BAD_REQUEST),
+    FIELD_MINVALID(1013, "{field} phải có ít nhất {min} ký tự", HttpStatus.BAD_REQUEST),
+    FIELD_MAXVALID(1014, "{field} phải ít hơn {max} ký tự", HttpStatus.BAD_REQUEST),
+    FIELD_MIN(1015, "{field} phải lớn hơn hoặc bằng {min}!", HttpStatus.BAD_REQUEST),
+    FIELD_MAX(1016, "{field} phải bé hơn {max}!", HttpStatus.BAD_REQUEST),
+    FIELD_ID_NOT_VALID(1017, "Id {field} chưa hợp lệ!", HttpStatus.BAD_REQUEST),
+    TIME_RANGE_INVALID(1018, "Thời gian bắt đầu phải trước thời gian kết thúc", HttpStatus.BAD_REQUEST),
+    EMAIL_NOT_VALID(1019, "Email không hợp lệ!", HttpStatus.BAD_REQUEST),
+    PRICE_NOT_VALID(1019, "{field} phải là số dương theo bội số của 1.000 đồng!", HttpStatus.BAD_REQUEST),
     ;
 
     int code;
     String message;
     HttpStatus httpStatus;
+
+    public String formatMessage(Object... params) {
+        return String.format(message, params);
+    }
 }

@@ -1,5 +1,8 @@
 package com.springboot.obbm.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,6 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -59,4 +63,10 @@ public class User {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void trimFields(){
+        StringFieldTrimmer.trimAndNormalizeStringFields(this);
+    }
 }

@@ -1,4 +1,4 @@
-package com.springboot.obbm.validator;
+package com.springboot.obbm.validator.dob;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

@@ -16,8 +16,6 @@ import java.util.Objects;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final String MIN_ATTRIBUTE = "min";
-
     @ExceptionHandler(value = RuntimeException.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
         log.error("RuntimeException occurred: ", exception);  // Log thông tin lỗi
@@ -39,7 +37,7 @@ public class GlobalExceptionHandler {
                 .status(errorCode.getHttpStatus())
                 .body(ApiResponse.builder()
                         .code(errorCode.getCode())
-                        .message(errorCode.getMessage())
+                        .message(exception.getMessage())
                         .build());
     }
 
@@ -55,40 +53,68 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
-        String enumKey = exception.getFieldError().getDefaultMessage();
-
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
-        Map<String, Object> attributes = null;
+        String formattedMessage = errorCode.getMessage();
 
-        try {
-            errorCode = ErrorCode.valueOf(enumKey);
+        var bindingResult = exception.getBindingResult();
 
-            var constraintViolations = exception.getBindingResult()
-                    .getAllErrors().get(0)
-                    .unwrap(ConstraintViolation.class);
+        // Kiểm tra lỗi của trường cụ thể (FieldError)
+        var fieldError = bindingResult.getFieldError();
+        if (fieldError != null) {
+            String field = fieldError.getField();
+            String enumKey = fieldError.getDefaultMessage(); // Sử dụng message cấu hình trong annotation
 
-            attributes = constraintViolations.getConstraintDescriptor().getAttributes();
+            try {
+                errorCode = ErrorCode.valueOf(enumKey);
+            } catch (IllegalArgumentException e) {
+                log.warn("Error code not found for key: {}", enumKey);
+            }
 
-            log.info(attributes.toString());
+            formattedMessage = errorCode.getMessage().replace("{field}", field);
 
-        } catch (Exception e) {
+            // Kiểm tra các thuộc tính của annotation để tùy chỉnh thông báo
+            ConstraintViolation<?> violation = fieldError.unwrap(ConstraintViolation.class);
+            if (violation != null) {
+                Map<String, Object> attributes = violation.getConstraintDescriptor().getAttributes();
+
+                if (attributes.containsKey("value")) {
+                    String value = attributes.get("value").toString();
+                    if (enumKey.equals("FIELD_MIN")) {
+                        formattedMessage = formattedMessage.replace("{min}", value);
+                    } else if (enumKey.equals("FIELD_MAX")) {
+                        formattedMessage = formattedMessage.replace("{max}", value);
+                    }
+                } else {
+                    if (attributes.containsKey("min")) {
+                        String minLength = attributes.get("min").toString();
+                        formattedMessage = formattedMessage.replace("{min}", minLength);
+                    }
+                    if (attributes.containsKey("max")) {
+                        String maxLength = attributes.get("max").toString();
+                        formattedMessage = formattedMessage.replace("{max}", maxLength);
+                    }
+                }
+            }
+        } else {
+            var globalError = bindingResult.getGlobalError();
+            if (globalError != null) {
+                String enumKey = globalError.getDefaultMessage();
+
+                try {
+                    errorCode = ErrorCode.valueOf(enumKey);
+                    formattedMessage = errorCode.getMessage();
+                } catch (IllegalArgumentException e) {
+                    log.warn("Error code not found for key: {}", enumKey);
+                    formattedMessage = enumKey;
+                }
+            }
         }
 
         return ResponseEntity.status(errorCode.getHttpStatus())
                 .body(ApiResponse.builder()
                         .code(errorCode.getCode())
-                        .message(Objects.nonNull(attributes) ?
-                                mapAttribute(errorCode.getMessage(), attributes)
-                                : errorCode.getMessage())
+                        .message(formattedMessage)
                         .build());
-    }
-
-    private String mapAttribute(String message, Map<String, Object> attributes) {
-
-        String minValue = attributes.get(MIN_ATTRIBUTE).toString();
-
-        return message.replace("{" + MIN_ATTRIBUTE + "}", minValue);
-
     }
 
 }

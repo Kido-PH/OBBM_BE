@@ -1,9 +1,9 @@
 package com.springboot.obbm.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.springboot.obbm.util.StringFieldTrimmer;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,6 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
 public class Role {
     @Id
     @Column(name = "role_name")
@@ -29,4 +30,10 @@ public class Role {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void trimFields(){
+        StringFieldTrimmer.trimAndNormalizeStringFields(this);
+    }
 }

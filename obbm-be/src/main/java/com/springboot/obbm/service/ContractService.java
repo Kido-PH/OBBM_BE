@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,27 +41,40 @@ public class ContractService {
         Page<Contract> contractPage = contractRespository.findAllByDeletedAtIsNull(pageable);
 
         var responseList = contractPage.getContent().stream()
+                .map(contract -> {
+                    contract.setListStockrequests(
+                            contract.getListStockrequests().stream()
+                                    .filter(stockRequest -> stockRequest.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    return contractMapper.toContractResponse(contract);
+                })
                 .distinct()
-                .map(contractMapper::toContractResponse)
                 .toList();
         return new PageImpl<>(responseList, pageable, contractPage.getTotalElements());
     }
 
     public ContractResponse getContractById(int id) {
-        return contractMapper.toContractResponse(contractRespository.findByContractIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED)));
+        Contract contract = contractRespository.findByContractIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Hợp đồng"));
+        contract.setListStockrequests(
+                contract.getListStockrequests().stream()
+                        .filter(stockRequest -> stockRequest.getDeletedAt() == null)
+                        .collect(Collectors.toList())
+        );
+        return contractMapper.toContractResponse(contract);
     }
 
     public ContractResponse createContract(ContractRequest request) {
         Contract contract = contractMapper.toContract(request);
         Location location = locationRespository.findById(request.getLocationId())
-                .orElseThrow(() -> new AppException(ErrorCode.LOCATION_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Địa điểm"));
         Event event = eventRespository.findById(request.getEventId())
-                .orElseThrow(() -> new AppException(ErrorCode.EVENT_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
         Menu menu = menuRespository.findById(request.getMenuId())
-                .orElseThrow(() -> new AppException(ErrorCode.MENU_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
         User user = userRespository.findById(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
         contract.setLocations(location);
         contract.setEvents(event);
         contract.setMenus(menu);
@@ -74,17 +88,17 @@ public class ContractService {
     }
 
 
-    public ContractResponse updateContract(int id, ContractRequest request){
+    public ContractResponse updateContract(int id, ContractRequest request) {
         Contract contract = contractRespository.findByContractIdAndDeletedAtIsNull(id).orElseThrow(
-                () -> new AppException(ErrorCode.CONTRACT_NOT_EXISTED));
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Hợp đồng"));
         Location location = locationRespository.findById(request.getLocationId())
-                .orElseThrow(() -> new AppException(ErrorCode.LOCATION_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Địa điểm"));
         Event event = eventRespository.findById(request.getEventId())
-                .orElseThrow(() -> new AppException(ErrorCode.EVENT_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
         Menu menu = menuRespository.findById(request.getMenuId())
-                .orElseThrow(() -> new AppException(ErrorCode.MENU_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
         User user = userRespository.findById(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
         contract.setLocations(location);
         contract.setEvents(event);
         contract.setMenus(menu);
@@ -100,7 +114,7 @@ public class ContractService {
 
     public void deleteContract(int id) {
         Contract contract = contractRespository.findByContractIdAndDeletedAtIsNull(id).orElseThrow(
-                () -> new AppException(ErrorCode.CONTRACT_NOT_EXISTED));
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Hợp đồng"));
 
         contract.setDeletedAt(LocalDateTime.now());
         contractRespository.save(contract);

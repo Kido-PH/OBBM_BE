@@ -20,8 +20,14 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 @EnableWebSecurity()
 @EnableMethodSecurity()
-@EnableScheduling  // Kích hoạt các nhiệm vụ định kỳ
+@EnableScheduling
 public class SecurityConfig {
+
+    private static final String[] SWAGGER_ENDPOINTS = {
+            "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
+            "/configuration/ui", "/configuration/security", "/webjars/**",
+            "/swagger-ui.html"
+    };
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
@@ -30,46 +36,43 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint; // Tiêm vào EntryPoint
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-
-        httpSecurity.authorizeHttpRequests(request ->
-        {
-            try {
-                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
-                        .and().oauth2ResourceServer().jwt();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        // Chuyển đổi thông tin quyền từ token thành quyền trong Spring
-        httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer ->
-                                jwtConfigurer.decoder(customJwtDecoder) // Sử dụng CustomJwtDecoder để giải mã token
-                                        .jwtAuthenticationConverter(jwtAuthenticationConverter())) // Sử dụng converter để chuyển JWT thành đối tượng Authentication
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()
+        httpSecurity
+                .authorizeHttpRequests(request -> {
+                    request.requestMatchers(SWAGGER_ENDPOINTS).permitAll()
+                            .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                            .anyRequest().authenticated();
+                })
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         )
-        );
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                );
 
-        httpSecurity.csrf(AbstractHttpConfigurer -> AbstractHttpConfigurer.disable());
+        httpSecurity.csrf(csrf -> csrf.disable())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt())
+                .headers(headers -> headers.frameOptions().sameOrigin());
+
         return httpSecurity.build();
     }
 
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-
-        corsConfiguration.addAllowedOrigin("http://localhost:3000");  // Liệt kê rõ nguồn gốc cụ thể
+        corsConfiguration.addAllowedOriginPattern("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.setAllowCredentials(true);  // Bật credentials
+        corsConfiguration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
 
-        return new CorsFilter(urlBasedCorsConfigurationSource);
+        return new CorsFilter(source);
     }
 
     @Bean

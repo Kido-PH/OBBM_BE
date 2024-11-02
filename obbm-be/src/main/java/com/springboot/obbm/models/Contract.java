@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -13,68 +15,78 @@ import java.util.List;
 
 @Data
 @Entity(name = "contract")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int contractId;
+    Integer contractId;
 
     @Column(name = "contract_name")
-    private String name;
+    String name;
 
     @Column(name = "contract_type")
-    private String type;
+    String type;
 
     @Column(name = "contract_guest")
-    private int guest;
+    Integer guest;
 
     @Column(name = "contract_table")
-    private int table;
+    Integer table;
 
     @Column(name = "contract_totalcost")
-    private double totalcost;
+    Double totalcost;
 
     @Column(name = "contract_status")
-    private String status;
+    String status;
 
     @Column(name = "contract_paymentstatus")
-    private String paymentstatus;
+    String paymentstatus;
 
     @Column(name = "contract_organizdate")
-    private LocalDateTime organizdate;
+    LocalDateTime organizdate;
 
     @Column(name = "contract_description")
-    private String description;
+    String description;
 
     @Column(name = "contract_custname")
-    private String custname;
+    String custname;
 
     @Column(name = "contract_custphone")
-    private String custphone;
+    String custphone;
 
     @Column(name = "contract_custmail")
-    private String custmail;
+    String custmail;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User users;
+    User users;
 
     @ManyToOne
     @JoinColumn(name = "location_id")
-    private Location locations;
+    Location locations;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
-    private Event events;
+    Event events;
 
     @ManyToOne
     @JoinColumn(name = "menu_id")
-    private Menu menus;
+    Menu menus;
 
     @OneToMany(mappedBy = "contracts")
-    private List<StockRequest> listStockrequests;
+    List<StockRequest> listStockrequests;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @PrePersist
+    @PreUpdate
+    public void trimFields(){
+        StringFieldTrimmer.trimAndNormalizeStringFields(this);
+    }
 }

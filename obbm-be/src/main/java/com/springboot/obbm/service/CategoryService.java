@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,35 +33,51 @@ public class CategoryService {
         Page<Category> categoryPage = categoryRespository.findAllByDeletedAtIsNull(pageable);
 
         var responseList = categoryPage.getContent().stream()
+                .map(category -> {
+                    category.setListDish(
+                            category.getListDish().stream()
+                                    .filter(dish -> dish.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    return categoryMapper.toCategoryResponse(category);
+                })
                 .distinct()
-                .map(categoryMapper::toCategoryResponse)
                 .toList();
+
         return new PageImpl<>(responseList, pageable, categoryPage.getTotalElements());
     }
 
     public CategoryResponse getCategoryById(int id) {
-        return categoryMapper.toCategoryResponse(categoryRespository.findByCategoryIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED)));
+        Category category = categoryRespository.findByCategoryIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
+
+        category.setListDish(
+                category.getListDish().stream()
+                        .filter(dish -> dish.getDeletedAt() == null)
+                        .collect(Collectors.toList())
+        );
+
+        return categoryMapper.toCategoryResponse(category);
     }
 
-    public CategoryResponse createCategory(CategoryRequest request){
+    public CategoryResponse createCategory(CategoryRequest request) {
         Category category = categoryMapper.toCategory(request);
         category.setCreatedAt(LocalDateTime.now());
         return categoryMapper.toCategoryResponse(categoryRespository.save(category));
     }
 
-    public CategoryResponse updateCategory(int id, CategoryRequest request){
+    public CategoryResponse updateCategory(int id, CategoryRequest request) {
         Category category = categoryRespository.findByCategoryIdAndDeletedAtIsNull(id).orElseThrow(
-                () -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
         category.setUpdatedAt(LocalDateTime.now());
 
-        categoryMapper.updateCaterogy(category, request);
+        categoryMapper.updateCategory(category, request);
         return categoryMapper.toCategoryResponse(categoryRespository.save(category));
     }
 
     public void deleteCategory(int id) {
         Category category = categoryRespository.findByCategoryIdAndDeletedAtIsNull(id).orElseThrow(
-                () -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
 
         category.setDeletedAt(LocalDateTime.now());
         categoryRespository.save(category);
