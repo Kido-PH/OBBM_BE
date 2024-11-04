@@ -1,5 +1,6 @@
 package com.springboot.obbm.dto.contract.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.springboot.obbm.dto.stockrequest.response.StockrequestResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ContractResponse {
     int contractId;
     String name;

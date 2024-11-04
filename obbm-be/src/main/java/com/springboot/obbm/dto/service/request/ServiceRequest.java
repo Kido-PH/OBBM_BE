@@ -1,6 +1,5 @@
-package com.springboot.obbm.dto.response;
+package com.springboot.obbm.dto.service.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,8 +8,10 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class PermissionResponse {
+public class ServiceRequest {
     String name;
+    String type;
+    Double price;
     String description;
+    Boolean status;
 }

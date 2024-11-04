@@ -1,5 +1,6 @@
 package com.springboot.obbm.dto.stockrequest.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class StockrequestResponse {
     private int stockrequestId;
     private int quantity;

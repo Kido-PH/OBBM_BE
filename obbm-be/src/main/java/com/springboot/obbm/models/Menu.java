@@ -42,6 +42,9 @@ public class Menu {
     @OneToMany(mappedBy = "menus")
     List<MenuDish> listMenuDish;
 
+    @OneToMany(mappedBy = "menus")
+    List<Contract> listContract;
+
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
