@@ -2,7 +2,7 @@ package com.springboot.obbm.mapper;
 
 import com.springboot.obbm.dto.category.request.CategoryRequest;
 import com.springboot.obbm.dto.category.response.CategoryResponse;
-import com.springboot.obbm.models.Category;
+import com.springboot.obbm.model.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 

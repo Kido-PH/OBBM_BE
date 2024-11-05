@@ -1,8 +1,8 @@
 package com.springboot.obbm.configuration;
 
 import com.springboot.obbm.constant.PredefinedRole;
-import com.springboot.obbm.models.User;
-import com.springboot.obbm.models.Role;
+import com.springboot.obbm.model.User;
+import com.springboot.obbm.model.Role;
 import com.springboot.obbm.respository.RoleRepository;
 import com.springboot.obbm.respository.UserRespository;
 import lombok.AccessLevel;

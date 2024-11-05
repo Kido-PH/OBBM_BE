@@ -5,7 +5,7 @@ import com.springboot.obbm.dto.category.response.CategoryResponse;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.CategoryMapper;
-import com.springboot.obbm.models.Category;
+import com.springboot.obbm.model.Category;
 import com.springboot.obbm.respository.CategoryRespository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

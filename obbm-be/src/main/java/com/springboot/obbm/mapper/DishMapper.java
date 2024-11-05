@@ -2,7 +2,7 @@ package com.springboot.obbm.mapper;
 
 import com.springboot.obbm.dto.dish.request.DishRequest;
 import com.springboot.obbm.dto.dish.response.DishResponse;
-import com.springboot.obbm.models.Dish;
+import com.springboot.obbm.model.Dish;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

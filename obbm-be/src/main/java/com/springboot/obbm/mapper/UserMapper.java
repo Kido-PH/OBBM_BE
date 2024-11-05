@@ -3,7 +3,7 @@ package com.springboot.obbm.mapper;
 import com.springboot.obbm.dto.request.UserUpdateRequest;
 import com.springboot.obbm.dto.user.response.UserResponse;
 import com.springboot.obbm.dto.request.UserCreationRequest;
-import com.springboot.obbm.models.User;
+import com.springboot.obbm.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

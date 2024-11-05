@@ -1,6 +1,6 @@
 package com.springboot.obbm.respository;
 
-import com.springboot.obbm.models.User;
+import com.springboot.obbm.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

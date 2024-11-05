@@ -1,15 +1,11 @@
 package com.springboot.obbm.service;
 
-import com.springboot.obbm.dto.category.request.CategoryRequest;
-import com.springboot.obbm.dto.category.response.CategoryResponse;
 import com.springboot.obbm.dto.contract.request.ContractRequest;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
-import com.springboot.obbm.dto.dish.request.DishRequest;
-import com.springboot.obbm.dto.dish.response.DishResponse;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.ContractMapper;
-import com.springboot.obbm.models.*;
+import com.springboot.obbm.model.*;
 import com.springboot.obbm.respository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

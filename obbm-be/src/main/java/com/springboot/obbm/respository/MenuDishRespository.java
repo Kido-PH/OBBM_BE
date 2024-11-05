@@ -1,6 +1,6 @@
 package com.springboot.obbm.respository;
 
-import com.springboot.obbm.models.MenuDish;
+import com.springboot.obbm.model.MenuDish;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

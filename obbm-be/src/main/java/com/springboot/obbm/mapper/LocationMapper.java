@@ -3,7 +3,7 @@ package com.springboot.obbm.mapper;
 import com.springboot.obbm.dto.location.request.LocationAdminRequest;
 import com.springboot.obbm.dto.location.request.LocationUserRequest;
 import com.springboot.obbm.dto.location.response.LocationResponse;
-import com.springboot.obbm.models.Location;
+import com.springboot.obbm.model.Location;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
