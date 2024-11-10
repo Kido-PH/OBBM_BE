@@ -5,7 +5,7 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3307/OBBM_2"
+    url: "jdbc:mysql://localhost:3307/OBBM_3"
     username: root
     password: system
   jpa:
@@ -22,6 +22,12 @@ jwt:
   signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
   valid-duration: 1800 # in second
   refreshable-duration: 1209600 # in seconds
+
+outbound:
+  identity:
+    client-id: "102785858700-jbqau42hb0m77erfgafhqitm980cgcr0.apps.googleusercontent.com"
+    client-secret: "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"
+    redirect-uri: "http://localhost:3000/authenticate"
 
 springdoc:
   swagger-ui:

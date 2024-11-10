@@ -1,4 +1,5 @@
-package com.springboot.obbm.models;
+package com.springboot.obbm.model;
+
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -11,50 +12,41 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Entity(name = "location")
+@Entity(name = "dish")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
-public class Location {
+public class Dish {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer locationId;
+    Integer dishId;
 
-    @Column(name = "location_name")
+    @Column(name = "dish_name")
     String name;
 
-    @Column(name = "location_type")
-    String type;
+    @Column(name = "dish_price")
+    Double price;
 
-    @Column(name = "location_address")
-    String address;
+    @Column(name = "dish_image")
+    String image;
 
-    @Column(name = "location_capacity")
-    Integer capacity;
-
-    @Column(name = "location_table")
-    Integer table;
-
-    @Column(name = "location_cost")
-    Double cost;
-
-    @Column(name = "location_description")
+    @Column(name = "dish_description")
     String description;
 
-    @Column(name = "location_iscustom")
-    Boolean isCustom;
-
-    @Column(name = "location_status")
-    String status;
+    @Column(name = "dish_existing")
+    String existing;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    User users;
+    @JoinColumn(name = "category_id")
+    Category categories;
 
-    @OneToMany(mappedBy = "locations")
-    List<Contract> listContract;
+    @OneToMany(mappedBy = "dishes")
+    List<MenuDish> listMenuDish;
+
+    @OneToMany(mappedBy = "dishes")
+    List<DishIngredient> listDishIngredient;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

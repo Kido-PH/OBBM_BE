@@ -1,4 +1,4 @@
-package com.springboot.obbm.models;
+package com.springboot.obbm.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -10,30 +10,35 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Data
-@Entity(name = "menudish")
+@Entity(name = "eventservice")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
-public class MenuDish {
+public class EventServices {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer menudishId;
+    Integer eventserviceId;
 
-    @Column(name = "menudish_price")
-    Double price;
 
-    @Column(name = "menudish_quantity")
+    @Column(name = "eventservice_quantity")
     Integer quantity;
 
-    @ManyToOne
-    @JoinColumn(name = "menu_id")
-    Menu menus;
+    @Column(name = "eventservice_cost")
+    Double cost;
 
     @ManyToOne
-    @JoinColumn(name = "dish_id")
-    Dish dishes;
+    @JoinColumn(name = "event_id")
+    Event events;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    Services services;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    User users;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

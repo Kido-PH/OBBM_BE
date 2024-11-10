@@ -1,7 +1,7 @@
-package com.springboot.obbm.models;
-
+package com.springboot.obbm.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
@@ -12,41 +12,26 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Entity(name = "dish")
+@Entity(name = "category")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
-public class Dish {
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer dishId;
+    Integer categoryId;
 
-    @Column(name = "dish_name")
+    @Column(name = "category_name")
     String name;
 
-    @Column(name = "dish_price")
-    Double price;
-
-    @Column(name = "dish_image")
-    String image;
-
-    @Column(name = "dish_description")
+    @Column(name = "category_description")
     String description;
 
-    @Column(name = "dish_existing")
-    String existing;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    Category categories;
-
-    @OneToMany(mappedBy = "dishes")
-    List<MenuDish> listMenuDish;
-
-    @OneToMany(mappedBy = "dishes")
-    List<DishIngredient> listDishIngredient;
+    @OneToMany(mappedBy = "categories")
+    List<Dish> listDish;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

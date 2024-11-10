@@ -1,6 +1,6 @@
 package com.springboot.obbm.respository;
 
-import com.springboot.obbm.models.Contract;
+import com.springboot.obbm.model.Contract;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

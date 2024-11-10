@@ -2,7 +2,7 @@ package com.springboot.obbm.mapper;
 
 import com.springboot.obbm.dto.request.RoleRequest;
 import com.springboot.obbm.dto.response.RoleResponse;
-import com.springboot.obbm.models.Role;
+import com.springboot.obbm.model.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

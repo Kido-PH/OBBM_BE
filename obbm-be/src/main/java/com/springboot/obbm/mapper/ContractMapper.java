@@ -2,7 +2,7 @@ package com.springboot.obbm.mapper;
 
 import com.springboot.obbm.dto.contract.request.ContractRequest;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
-import com.springboot.obbm.models.Contract;
+import com.springboot.obbm.model.Contract;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

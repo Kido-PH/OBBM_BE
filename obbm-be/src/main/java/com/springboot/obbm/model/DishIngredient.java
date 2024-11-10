@@ -1,29 +1,39 @@
-package com.springboot.obbm.models;
+package com.springboot.obbm.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.springboot.obbm.util.StringFieldTrimmer;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
-@Entity
+@Entity(name = "dishingredient")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
-public class InvalidatedToken {
+public class DishIngredient {
     @Id
-    String id;
-    Date expiryTime;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Integer dishingredientId;
+
+    @Column(name = "dishingredient_quantity")
+    String quantity;
+
+    @Column(name = "dishingredient_desc")
+    String desc;
+
+    @ManyToOne
+    @JoinColumn(name = "dish_id")
+    Dish dishes;
+
+    @ManyToOne
+    @JoinColumn(name = "ingredient_id")
+    Ingredient ingredients;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

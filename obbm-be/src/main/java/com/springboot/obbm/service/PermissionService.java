@@ -2,7 +2,7 @@ package com.springboot.obbm.service;
 
 import com.springboot.obbm.dto.request.PermissionRequest;
 import com.springboot.obbm.dto.response.PermissionResponse;
-import com.springboot.obbm.models.Permission;
+import com.springboot.obbm.model.Permission;
 import com.springboot.obbm.mapper.PermissionMapper;
 import com.springboot.obbm.respository.PermissionRepository;
 import lombok.AccessLevel;

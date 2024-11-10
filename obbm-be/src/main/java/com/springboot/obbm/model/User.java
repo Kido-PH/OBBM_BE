@@ -1,4 +1,4 @@
-package com.springboot.obbm.models;
+package com.springboot.obbm.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -56,6 +56,9 @@ public class User {
 
     @OneToMany(mappedBy = "users")
     List<Contract> listContract;
+
+    @OneToMany(mappedBy = "users")
+    List<EventServices> listEventServices;
 
     @ManyToMany
     Set<Role> roles;

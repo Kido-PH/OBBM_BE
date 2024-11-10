@@ -1,7 +1,6 @@
-package com.springboot.obbm.models;
+package com.springboot.obbm.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
@@ -9,29 +8,32 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
-@Entity(name = "category")
+@Entity(name = "menudish")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
-public class Category {
+public class MenuDish {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer categoryId;
+    Integer menudishId;
 
-    @Column(name = "category_name")
-    String name;
+    @Column(name = "menudish_price")
+    Double price;
 
-    @Column(name = "category_description")
-    String description;
+    @Column(name = "menudish_quantity")
+    Integer quantity;
 
-    @OneToMany(mappedBy = "categories")
-    List<Dish> listDish;
+    @ManyToOne
+    @JoinColumn(name = "menu_id")
+    Menu menus;
+
+    @ManyToOne
+    @JoinColumn(name = "dish_id")
+    Dish dishes;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

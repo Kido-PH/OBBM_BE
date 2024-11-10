@@ -2,7 +2,7 @@ package com.springboot.obbm.mapper;
 
 import com.springboot.obbm.dto.request.PermissionRequest;
 import com.springboot.obbm.dto.response.PermissionResponse;
-import com.springboot.obbm.models.Permission;
+import com.springboot.obbm.model.Permission;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

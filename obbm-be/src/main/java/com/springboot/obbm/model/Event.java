@@ -1,4 +1,4 @@
-package com.springboot.obbm.models;
+package com.springboot.obbm.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -8,24 +8,40 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Data
-@Entity
+@Entity(name = "event")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
-public class Role {
+public class Event {
     @Id
-    @Column(name = "role_name")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Integer eventId;
+
+    @Column(name = "event_name")
     String name;
-    @Column(name = "role_description")
+
+    @Column(name = "event_totalcost")
+    Double totalcost;
+
+    @Column(name = "event_description")
     String description;
 
-    @ManyToMany
-    Set<Permission> permissions;
+    @Column(name = "event_image")
+    String image;
+
+    @OneToMany(mappedBy = "events")
+    List<Menu> listMenu;
+
+    @OneToMany(mappedBy = "events")
+    List<EventServices> listEventServices;
+
+    @OneToMany(mappedBy = "events")
+    List<Contract> listContract;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

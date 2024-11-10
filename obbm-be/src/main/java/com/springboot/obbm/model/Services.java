@@ -1,50 +1,48 @@
-package com.springboot.obbm.models;
+package com.springboot.obbm.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Data
-@Entity(name = "ingredient")
+@Entity(name = "service")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
-public class Ingredient {
+public class Services {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer ingredientId;
+    Integer serviceId;
 
-    @Column(name = "ingredient_name")
+    @Column(name = "service_name")
     String name;
 
-    @Column(name = "ingredient_unit")
-    String unit;
+    @Column(name = "service_type")
+    String type;
 
-    @Column(name = "ingredient_transdate")
-    Date transdate;
+    @Column(name = "service_price")
+    Double price;
 
-    @Column(name = "ingredient_desc")
-    String desc;
+    @Column(name = "service_image")
+    String image;
 
-    @OneToMany(mappedBy = "ingredients")
-    List<StockRequest> listStockrequest;
+    @Column(name = "service_description")
+    String description;
+
+    @Column(name = "service_status")
+    Boolean status;
+
+    @OneToMany(mappedBy = "services")
+    List<EventServices> listEventServices;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
-
-    @PrePersist
-    @PreUpdate
-    public void trimFields(){
-        StringFieldTrimmer.trimAndNormalizeStringFields(this);
-    }
 }

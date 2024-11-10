@@ -2,7 +2,7 @@ package com.springboot.obbm.mapper;
 
 import com.springboot.obbm.dto.menudish.request.MenuDishRequest;
 import com.springboot.obbm.dto.menudish.response.MenuDishResponse;
-import com.springboot.obbm.models.MenuDish;
+import com.springboot.obbm.model.MenuDish;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

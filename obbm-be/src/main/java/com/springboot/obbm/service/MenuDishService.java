@@ -5,7 +5,7 @@ import com.springboot.obbm.dto.menudish.response.MenuDishResponse;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.MenuDishMapper;
-import com.springboot.obbm.models.*;
+import com.springboot.obbm.model.*;
 import com.springboot.obbm.respository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
