@@ -1,6 +1,7 @@
 package com.springboot.obbm.respository;
 
 import com.springboot.obbm.model.Contract;
+import com.springboot.obbm.model.Menu;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,5 @@ public interface ContractRespository extends JpaRepository<Contract, Integer> {
     Page<Contract> findAllByDeletedAtIsNull(Pageable pageable);
 
     Optional<Contract> findByContractIdAndDeletedAtIsNull(int id);
+    Optional<Contract> findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(String users_userId);
 }

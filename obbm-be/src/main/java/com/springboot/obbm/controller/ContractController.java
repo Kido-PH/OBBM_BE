@@ -2,13 +2,21 @@ package com.springboot.obbm.controller;
 
 import com.springboot.obbm.dto.contract.request.ContractRequest;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
+import com.springboot.obbm.dto.menu.response.MenuResponse;
 import com.springboot.obbm.dto.response.ApiResponse;
+import com.springboot.obbm.exception.AppException;
+import com.springboot.obbm.exception.ErrorCode;
+import com.springboot.obbm.model.Menu;
+import com.springboot.obbm.model.User;
 import com.springboot.obbm.service.ContractService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/contract")
@@ -29,6 +37,14 @@ public class ContractController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    @GetMapping("/latestContract")
+    ApiResponse<ContractResponse> getLatestContract() {
+        return ApiResponse.<ContractResponse>builder()
+                .result(contractService.getLatestContractByUserId())
+                .build();
     }
 
     @GetMapping("/{id}")

@@ -13,4 +13,5 @@ public interface MenuRespository extends JpaRepository<Menu, Integer> {
     Page<Menu> findAllByDeletedAtIsNull(Pageable pageable);
 
     Optional<Menu> findByMenuIdAndDeletedAtIsNull(int id);
+    Optional<Menu> findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(String users_userId);
 }

@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -52,6 +53,25 @@ public class MenuService {
                 .toList();
 
         return new PageImpl<>(responseList, pageable, menuPage.getTotalElements());
+    }
+
+    public MenuResponse getLatestMenuByUserId() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        log.info("Name: " + name);
+        User user = userRespository.findByUsername(name).orElseThrow(
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+
+        Menu menu = menuRespository.findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(user.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
+
+        menu.setListMenuDish(
+                menu.getListMenuDish().stream()
+                        .filter(menuDish -> menuDish.getDeletedAt() == null)
+                        .collect(Collectors.toList())
+        );
+
+        return menuMapper.toMenuResponse(menu);
     }
 
     public MenuResponse getMenuById(int id) {

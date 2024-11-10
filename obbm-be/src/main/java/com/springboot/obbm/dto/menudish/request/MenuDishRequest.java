@@ -16,5 +16,5 @@ public class MenuDishRequest {
     Double price;
     Integer quantity;
     Integer menuId;
-    Integer disheId;
+    Integer dishesId;
 }

@@ -32,6 +32,13 @@ public class MenuController {
         }
     }
 
+    @GetMapping("/latestMenu")
+    ApiResponse<MenuResponse> getLatestMenu() {
+        return ApiResponse.<MenuResponse>builder()
+                .result(menuService.getLatestMenuByUserId())
+                .build();
+    }
+
     @GetMapping("/{id}")
     ApiResponse<MenuResponse> getCategory(@PathVariable int id) {
         return ApiResponse.<MenuResponse>builder()

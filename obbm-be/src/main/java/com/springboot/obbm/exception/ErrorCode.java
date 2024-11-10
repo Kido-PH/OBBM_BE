@@ -17,7 +17,6 @@ public enum ErrorCode {
     UNAUTHENTICATED(1006, "Chưa xác thực", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "Bạn không có quyền", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Tuổi của bạn phải ít nhất {min}", HttpStatus.BAD_REQUEST),
-
     OBJECT_NOT_EXISTED(1009, "%s không tồn tại", HttpStatus.NOT_FOUND),
     OBJECT_EXISTED(1010, "%s đã tồn tại", HttpStatus.NOT_FOUND),
     FIELD_NOT_BLANK(1011, "{field} không được bỏ trống!", HttpStatus.BAD_REQUEST),
@@ -30,6 +29,7 @@ public enum ErrorCode {
     TIME_RANGE_INVALID(1018, "Thời gian bắt đầu phải trước thời gian kết thúc", HttpStatus.BAD_REQUEST),
     EMAIL_NOT_VALID(1019, "Email không hợp lệ!", HttpStatus.BAD_REQUEST),
     PRICE_NOT_VALID(1019, "{field} phải là số dương theo bội số của 1.000 đồng!", HttpStatus.BAD_REQUEST),
+    DUPLICATE_ENTRY(1019, "Dữ liệu đã bị trùng lập!", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

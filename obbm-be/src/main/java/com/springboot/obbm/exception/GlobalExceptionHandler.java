@@ -3,6 +3,7 @@ package com.springboot.obbm.exception;
 import com.springboot.obbm.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -117,4 +118,16 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(value = DataIntegrityViolationException.class)
+    ResponseEntity<ApiResponse> handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
+        ErrorCode errorCode = ErrorCode.DUPLICATE_ENTRY;
+        String errorMessage = "Đã phát hiện mục nhập trùng lặp: " + exception.getMostSpecificCause().getMessage();
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorMessage)
+                        .build());
+    }
 }

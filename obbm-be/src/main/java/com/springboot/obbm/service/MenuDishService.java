@@ -67,7 +67,7 @@ public class MenuDishService {
     public MenuDishResponse createMenuDish(MenuDishRequest request) {
         Menu menu = menuRespository.findById(request.getMenuId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
-        Dish dish = dishRespository.findById(request.getDisheId())
+        Dish dish = dishRespository.findById(request.getDishesId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
         MenuDish menuDish = menuDishMapper.toMenuDish(request);
         menuDish.setCreatedAt(LocalDateTime.now());
@@ -79,7 +79,7 @@ public class MenuDishService {
     public MenuDishResponse updateMenuDish(int id, MenuDishRequest request) {
         MenuDish menuDish = menuDishRespository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn"));
-        Dish dish = dishRespository.findById(request.getDisheId())
+        Dish dish = dishRespository.findById(request.getDishesId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
         Menu menu = menuRespository.findById(request.getMenuId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));

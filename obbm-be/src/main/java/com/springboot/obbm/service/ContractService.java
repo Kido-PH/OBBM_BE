@@ -2,6 +2,7 @@ package com.springboot.obbm.service;
 
 import com.springboot.obbm.dto.contract.request.ContractRequest;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
+import com.springboot.obbm.dto.menu.response.MenuResponse;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.ContractMapper;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -48,6 +50,25 @@ public class ContractService {
                 .distinct()
                 .toList();
         return new PageImpl<>(responseList, pageable, contractPage.getTotalElements());
+    }
+
+    public ContractResponse getLatestContractByUserId() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        log.info("Name: " + name);
+        User user = userRespository.findByUsername(name).orElseThrow(
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+
+        Contract contract = contractRespository.findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(user.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Hợp đồng"));
+
+        contract.setListStockrequests(
+                contract.getListStockrequests().stream()
+                        .filter(stockRequest -> stockRequest.getDeletedAt() == null)
+                        .collect(Collectors.toList())
+        );
+
+        return contractMapper.toContractResponse(contract);
     }
 
     public ContractResponse getContractById(int id) {
