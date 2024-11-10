@@ -31,6 +31,9 @@ public class Event {
     @Column(name = "event_description")
     String description;
 
+    @Column(name = "event_image")
+    String image;
+
     @OneToMany(mappedBy = "events")
     List<Menu> listMenu;
 

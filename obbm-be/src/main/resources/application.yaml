@@ -23,6 +23,12 @@ jwt:
   valid-duration: 1800 # in second
   refreshable-duration: 1209600 # in seconds
 
+outbound:
+  identity:
+    client-id: "102785858700-jbqau42hb0m77erfgafhqitm980cgcr0.apps.googleusercontent.com"
+    client-secret: "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"
+    redirect-uri: "http://localhost:3000/authenticate"
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

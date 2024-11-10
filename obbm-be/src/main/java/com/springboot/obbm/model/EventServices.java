@@ -36,6 +36,10 @@ public class EventServices {
     @JoinColumn(name = "service_id")
     Services services;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    User users;
+
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;

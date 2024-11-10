@@ -40,6 +40,9 @@ public class Location {
     @Column(name = "location_cost")
     Double cost;
 
+    @Column(name = "location_image")
+    String image;
+
     @Column(name = "location_description")
     String description;
 

@@ -1,6 +1,8 @@
 package com.springboot.obbm.service;
 
+import com.springboot.obbm.client.OutboundObbmClient;
 import com.springboot.obbm.dto.request.AuthenticationRequest;
+import com.springboot.obbm.dto.request.ExchangeTokenRequest;
 import com.springboot.obbm.dto.request.IntrospectRequest;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
@@ -15,6 +17,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import feign.FeignException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,6 +49,7 @@ import java.util.UUID;
 public class AuthenticationService {
     UserRespository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    OutboundObbmClient outboundObbmClient;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -58,6 +62,37 @@ public class AuthenticationService {
     @NonFinal
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
+
+    @NonFinal
+    @Value("${outbound.identity.client-id}")
+    protected String CLIENT_ID;
+
+    @NonFinal
+    @Value("${outbound.identity.client-secret}")
+    protected String CLIENT_SECRET;
+
+    @NonFinal
+    @Value("${outbound.identity.redirect-uri}")
+    protected String REDIRECT_URI;
+
+    @NonFinal
+    protected String GRANT_TYPE = "authorization_code";
+
+    public AuthenticationResponse outboundAuthentication(String code) {
+        ExchangeTokenRequest tokenRequest = ExchangeTokenRequest.builder()
+                .code(code)
+                .clientId(CLIENT_ID)
+                .clientSecret(CLIENT_SECRET)
+                .redirectUri(REDIRECT_URI)
+                .grantType(GRANT_TYPE)
+                .build();
+        var response = outboundObbmClient.exchangeToken(tokenRequest);
+        log.info("Received token response: {}", response);
+
+        return AuthenticationResponse.builder()
+                .accessToken(response.getAccessToken())
+                .build();
+    }
 
     public IntrospectResponse introspect(IntrospectRequest request)
             throws JOSEException, ParseException {
@@ -117,7 +152,6 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
-                .authenticated(true)
                 .build();
     }
 
@@ -134,7 +168,6 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .accessToken(newAccessToken)  // Trả về access token mới
-                .authenticated(true)
                 .build();
     }
 

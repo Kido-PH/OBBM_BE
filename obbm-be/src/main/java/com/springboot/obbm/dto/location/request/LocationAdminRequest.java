@@ -15,6 +15,7 @@ public class LocationAdminRequest {
     int capacity;
     int table;
     double cost;
+    String image;
     String description;
     String status;
 }

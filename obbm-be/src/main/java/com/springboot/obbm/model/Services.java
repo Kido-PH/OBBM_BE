@@ -30,6 +30,9 @@ public class Services {
     @Column(name = "service_price")
     Double price;
 
+    @Column(name = "service_image")
+    String image;
+
     @Column(name = "service_description")
     String description;
 

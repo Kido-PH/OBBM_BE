@@ -18,8 +18,8 @@ public class EventResponse {
     String name;
     Double totalcost;
     String description;
+    String image;
     List<EventServicesForEventResponse> listEventServices;
-//    List<ContractForEventResponse> listContract;
     List<MenuForEventResponse> listMenu;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

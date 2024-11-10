@@ -22,6 +22,7 @@ public class LocationResponse {
     Integer capacity;
     Integer table;
     Double cost;
+    String image;
     String description;
     Boolean isCustom;
     String status;

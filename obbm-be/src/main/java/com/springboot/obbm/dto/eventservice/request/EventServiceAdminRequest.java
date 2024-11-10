@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventServiceRequest {
+public class EventServiceAdminRequest {
     Integer quantity;
     Double cost;
     Integer eventId;

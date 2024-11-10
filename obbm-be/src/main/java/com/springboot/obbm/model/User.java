@@ -57,6 +57,9 @@ public class User {
     @OneToMany(mappedBy = "users")
     List<Contract> listContract;
 
+    @OneToMany(mappedBy = "users")
+    List<EventServices> listEventServices;
+
     @ManyToMany
     Set<Role> roles;
 

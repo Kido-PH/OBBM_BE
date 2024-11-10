@@ -12,4 +12,5 @@ public class EventRequest {
     String name;
     Double totalcost;
     String description;
+    String image;
 }

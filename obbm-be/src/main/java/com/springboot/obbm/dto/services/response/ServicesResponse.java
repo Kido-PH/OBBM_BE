@@ -17,6 +17,7 @@ public class ServicesResponse {
     String name;
     String type;
     Double price;
+    String image;
     String description;
     Boolean status;
     LocalDateTime createdAt;

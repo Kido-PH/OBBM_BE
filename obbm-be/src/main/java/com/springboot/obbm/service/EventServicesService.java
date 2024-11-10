@@ -1,6 +1,7 @@
 package com.springboot.obbm.service;
 
-import com.springboot.obbm.dto.eventservice.request.EventServiceRequest;
+import com.springboot.obbm.dto.eventservice.request.EventServiceAdminRequest;
+import com.springboot.obbm.dto.eventservice.request.EventServiceUserRequest;
 import com.springboot.obbm.dto.eventservice.response.EventServicesResponse;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
@@ -10,6 +11,7 @@ import com.springboot.obbm.model.EventServices;
 import com.springboot.obbm.respository.EventRespository;
 import com.springboot.obbm.respository.EventServiceRespository;
 import com.springboot.obbm.respository.ServicesRespository;
+import com.springboot.obbm.respository.UserRespository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +31,7 @@ public class EventServicesService {
     EventServiceRespository eventServiceRespository;
     EventRespository eventRespository;
     ServicesRespository servicesRespository;
+    UserRespository userRespository;
     EventServiceMapper eventServiceMapper;
 
     public PageImpl<EventServicesResponse> getAllEventServices(int page, int size) {
@@ -66,19 +69,34 @@ public class EventServicesService {
         return new PageImpl<>(responseList, pageable, EventServicePage.getTotalElements());
     }
 
-    public EventServicesResponse createEventService(EventServiceRequest request) {
+    public EventServicesResponse createUserEventService(EventServiceUserRequest request) {
         Event event = eventRespository.findById(request.getEventId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
         Services services = servicesRespository.findById(request.getServiceId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Dịch vụ"));
-        EventServices eventServices = eventServiceMapper.toEventService(request);
+        User user = userRespository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+        EventServices eventServices = eventServiceMapper.toEventUserService(request);
+        eventServices.setCreatedAt(LocalDateTime.now());
+        eventServices.setEvents(event);
+        eventServices.setServices(services);
+        eventServices.setUsers(user);
+        return eventServiceMapper.toEventServiceResponse(eventServiceRespository.save(eventServices));
+    }
+
+    public EventServicesResponse createAdminEventService(EventServiceAdminRequest request) {
+        Services services = servicesRespository.findById(request.getServiceId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Dịch vụ"));
+        Event event = eventRespository.findById(request.getEventId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
+        EventServices eventServices = eventServiceMapper.toEventAdminService(request);
         eventServices.setCreatedAt(LocalDateTime.now());
         eventServices.setEvents(event);
         eventServices.setServices(services);
         return eventServiceMapper.toEventServiceResponse(eventServiceRespository.save(eventServices));
     }
 
-    public EventServicesResponse updateEventService(int id, EventServiceRequest request) {
+    public EventServicesResponse updateEventService(int id, EventServiceAdminRequest request) {
         EventServices EventServices = eventServiceRespository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn"));
         Event event = eventRespository.findById(request.getEventId())

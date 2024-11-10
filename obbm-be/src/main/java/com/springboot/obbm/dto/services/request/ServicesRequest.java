@@ -12,6 +12,7 @@ public class ServicesRequest {
     String name;
     String type;
     Double price;
+    String image;
     String description;
     Boolean status;
 }

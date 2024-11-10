@@ -1,6 +1,7 @@
 package com.springboot.obbm.controller;
 
-import com.springboot.obbm.dto.eventservice.request.EventServiceRequest;
+import com.springboot.obbm.dto.eventservice.request.EventServiceAdminRequest;
+import com.springboot.obbm.dto.eventservice.request.EventServiceUserRequest;
 import com.springboot.obbm.dto.eventservice.response.EventServicesResponse;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.service.EventServicesService;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventServiceController {
-    private EventServicesService EventServicesService;
+    private EventServicesService eventServicesService;
 
     @GetMapping
     ApiResponse<PageImpl<EventServicesResponse>> getAllDishes(
@@ -24,7 +25,7 @@ public class EventServiceController {
         try {
             int adjustedPage = (page > 0) ? page - 1 : 0;
             return ApiResponse.<PageImpl<EventServicesResponse>>builder()
-                    .result(EventServicesService.getAllEventServices(adjustedPage, size))
+                    .result(eventServicesService.getAllEventServices(adjustedPage, size))
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -40,7 +41,7 @@ public class EventServiceController {
         try {
             int adjustedPage = (page > 0) ? page - 1 : 0;
             return ApiResponse.<PageImpl<EventServicesResponse>>builder()
-                    .result(EventServicesService.getEventServiceByEventId(menuId, adjustedPage, size))
+                    .result(eventServicesService.getEventServiceByEventId(menuId, adjustedPage, size))
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -56,7 +57,7 @@ public class EventServiceController {
         try {
             int adjustedPage = (page > 0) ? page - 1 : 0;
             return ApiResponse.<PageImpl<EventServicesResponse>>builder()
-                    .result(EventServicesService.getEventServiceByServiceId(dishId, adjustedPage, size))
+                    .result(eventServicesService.getEventServiceByServiceId(dishId, adjustedPage, size))
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -64,29 +65,36 @@ public class EventServiceController {
     }
 
     @GetMapping("/{id}")
-    ApiResponse<EventServicesResponse> getDish(@PathVariable int id) {
+    ApiResponse<EventServicesResponse> getEventServiceById(@PathVariable int id) {
         return ApiResponse.<EventServicesResponse>builder()
-                .result(EventServicesService.getEventServiceById(id))
+                .result(eventServicesService.getEventServiceById(id))
                 .build();
     }
 
-    @PostMapping
-    public ApiResponse<EventServicesResponse> createDish(@RequestBody EventServiceRequest request) {
+    @PostMapping("/admin")
+    public ApiResponse<EventServicesResponse> createAdminEventService(@RequestBody EventServiceAdminRequest request) {
         return ApiResponse.<EventServicesResponse>builder()
-                .result(EventServicesService.createEventService(request))
+                .result(eventServicesService.createAdminEventService(request))
+                .build();
+    }
+
+    @PostMapping("/user")
+    public ApiResponse<EventServicesResponse> createUserEventService(@RequestBody EventServiceUserRequest request) {
+        return ApiResponse.<EventServicesResponse>builder()
+                .result(eventServicesService.createUserEventService(request))
                 .build();
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<EventServicesResponse> updateDish(@PathVariable int id, @RequestBody EventServiceRequest request) {
+    public ApiResponse<EventServicesResponse> updateEventService(@PathVariable int id, @RequestBody EventServiceAdminRequest request) {
         return ApiResponse.<EventServicesResponse>builder()
-                .result(EventServicesService.updateEventService(id, request))
+                .result(eventServicesService.updateEventService(id, request))
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<?> deleteDish(@PathVariable int id) {
-        EventServicesService.deleteEventService(id);
+    public ApiResponse<?> deleteEventService(@PathVariable int id) {
+        eventServicesService.deleteEventService(id);
         return ApiResponse.builder()
                 .message("Dịch vụ sự kiện đã bị xóa.")
                 .build();
