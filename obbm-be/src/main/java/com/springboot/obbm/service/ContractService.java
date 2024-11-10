@@ -75,14 +75,13 @@ public class ContractService {
         contract.setEvents(event);
         contract.setMenus(menu);
         contract.setUsers(user);
-        contract.setCustname(user.getFullname());
+        contract.setCustname(request.getCustname());
+        contract.setCustphone(request.getCustphone());
         contract.setCustmail(user.getEmail());
-        contract.setCustphone(user.getPhone());
         contract.setCreatedAt(LocalDateTime.now());
 
         return contractMapper.toContractResponse(contractRespository.save(contract));
     }
-
 
     public ContractResponse updateContract(int id, ContractRequest request) {
         Contract contract = contractRespository.findByContractIdAndDeletedAtIsNull(id).orElseThrow(
@@ -99,9 +98,9 @@ public class ContractService {
         contract.setEvents(event);
         contract.setMenus(menu);
         contract.setUsers(user);
-        contract.setCustname(user.getFullname());
+        contract.setCustname(request.getCustname());
+        contract.setCustphone(request.getCustphone());
         contract.setCustmail(user.getEmail());
-        contract.setCustphone(user.getPhone());
         contract.setUpdatedAt(LocalDateTime.now());
 
         contractMapper.updateContract(contract, request);

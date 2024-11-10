@@ -19,6 +19,8 @@ public class ContractRequest {
     String status;
     String paymentstatus;
     LocalDateTime organizdate;
+    String custname;
+    String custphone;
     String description;
     String userId;
     int locationId;
