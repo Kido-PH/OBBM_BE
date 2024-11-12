@@ -12,4 +12,5 @@ public class MenuForContractResponse {
     int menuId;
     String name;
     String description;
+    Double totalcost;
 }

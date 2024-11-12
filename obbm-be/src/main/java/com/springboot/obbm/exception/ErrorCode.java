@@ -30,6 +30,7 @@ public enum ErrorCode {
     EMAIL_NOT_VALID(1019, "Email không hợp lệ!", HttpStatus.BAD_REQUEST),
     PRICE_NOT_VALID(1019, "{field} phải là số dương theo bội số của 1.000 đồng!", HttpStatus.BAD_REQUEST),
     DUPLICATE_ENTRY(1019, "Dữ liệu đã bị trùng lập!", HttpStatus.BAD_REQUEST),
+    PASSWORD_EXISTED(1020, "Mật khẩu đã được tạo trước đó", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

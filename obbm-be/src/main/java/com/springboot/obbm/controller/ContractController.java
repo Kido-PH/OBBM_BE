@@ -2,21 +2,14 @@ package com.springboot.obbm.controller;
 
 import com.springboot.obbm.dto.contract.request.ContractRequest;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
-import com.springboot.obbm.dto.menu.response.MenuResponse;
 import com.springboot.obbm.dto.response.ApiResponse;
-import com.springboot.obbm.exception.AppException;
-import com.springboot.obbm.exception.ErrorCode;
-import com.springboot.obbm.model.Menu;
-import com.springboot.obbm.model.User;
 import com.springboot.obbm.service.ContractService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/contract")
@@ -39,7 +32,23 @@ public class ContractController {
         }
     }
 
+    @PreAuthorize("@securityUtil.isCurrentUser(#userId)")
+    @GetMapping("/user/{userId}")
+    ApiResponse<PageImpl<ContractResponse>> getAllContractsByUserId(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<ContractResponse>>builder()
+                    .result(contractService.getAllContractsByUserId(userId, adjustedPage, size))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    @PreAuthorize("@securityUtil.isCurrentUser(#userId)")
     @GetMapping("/latestContract/{id}")
     ApiResponse<ContractResponse> getLatestContract(@PathVariable String id) {
         return ApiResponse.<ContractResponse>builder()

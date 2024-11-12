@@ -3,6 +3,7 @@ package com.springboot.obbm.controller;
 import com.springboot.obbm.dto.request.UserCreationRequest;
 import com.springboot.obbm.dto.request.UserUpdateRequest;
 import com.springboot.obbm.dto.response.ApiResponse;
+import com.springboot.obbm.dto.user.request.PasswordCreateRequest;
 import com.springboot.obbm.dto.user.response.UserResponse;
 import com.springboot.obbm.service.UserService;
 import jakarta.validation.Valid;
@@ -23,6 +24,14 @@ import java.util.List;
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private UserService userService; // Khởi tạo userService bằng @Autowired
+
+    @PostMapping("/create-password")
+    ApiResponse<Void> createPassword(@RequestBody @Valid PasswordCreateRequest request) {
+        userService.createPassword(request);
+        return ApiResponse.<Void>builder()
+                .message("Mật khẩu đã được tạo, bạn có thể sử dụng nó để đăng nhập")
+                .build();
+    }
 
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {

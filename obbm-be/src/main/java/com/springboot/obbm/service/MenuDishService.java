@@ -26,18 +26,18 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class MenuDishService {
-    MenuDishRespository menuDishRespository;
-    MenuRespository menuRespository;
-    DishRespository dishRespository;
+    MenuDishRepository menuDishRepository;
+    MenuRepository menuRepository;
+    DishRepository dishRepository;
     MenuDishMapper menuDishMapper;
 
     public List<MenuDishResponse> saveAllMenuDish(List<MenuDishRequest> requestList) {
         List<MenuDish> menuDishList = new ArrayList<>();
         for (MenuDishRequest request : requestList) {
-            Menu menu = menuRespository.findById(request.getMenuId())
+            Menu menu = menuRepository.findById(request.getMenuId())
                     .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
 
-            Dish dish = dishRespository.findByDishIdAndDeletedAtIsNull(request.getDishesId())
+            Dish dish = dishRepository.findByDishIdAndDeletedAtIsNull(request.getDishesId())
                     .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
 
             MenuDish menuDish = menuDishMapper.toMenuDish(request);
@@ -49,12 +49,12 @@ public class MenuDishService {
         }
 
 
-        return menuDishMapper.toMenuDishResponseList(menuDishRespository.saveAll(menuDishList));
+        return menuDishMapper.toMenuDishResponseList(menuDishRepository.saveAll(menuDishList));
     }
 
     public PageImpl<MenuDishResponse> getAllMenuDishs(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<MenuDish> menuDishPage = menuDishRespository.findAllByDeletedAtIsNull(pageable);
+        Page<MenuDish> menuDishPage = menuDishRepository.findAllByDeletedAtIsNull(pageable);
 
         var responseList = menuDishPage.getContent().stream()
                 .distinct().map(menuDishMapper::toMenuDishResponse)
@@ -63,13 +63,13 @@ public class MenuDishService {
     }
 
     public MenuDishResponse getMenuDishById(int id) {
-        return menuDishMapper.toMenuDishResponse(menuDishRespository.findByMenudishIdAndDeletedAtIsNull(id)
+        return menuDishMapper.toMenuDishResponse(menuDishRepository.findByMenudishIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn")));
     }
 
     public PageImpl<MenuDishResponse> getMenuDishByMenuId(int menuId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<MenuDish> menuDishPage = menuDishRespository.findAllByMenus_MenuIdAndDeletedAtIsNull(menuId, pageable);
+        Page<MenuDish> menuDishPage = menuDishRepository.findAllByMenus_MenuIdAndDeletedAtIsNull(menuId, pageable);
 
         var responseList = menuDishPage.getContent().stream()
                 .map(menuDishMapper::toMenuDishResponse)
@@ -79,7 +79,7 @@ public class MenuDishService {
 
     public PageImpl<MenuDishResponse> getMenuDishByDishId(int dishId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<MenuDish> menuDishPage = menuDishRespository.findAllByDishes_DishIdAndDeletedAtIsNull(dishId, pageable);
+        Page<MenuDish> menuDishPage = menuDishRepository.findAllByDishes_DishIdAndDeletedAtIsNull(dishId, pageable);
 
         var responseList = menuDishPage.getContent().stream()
                 .map(menuDishMapper::toMenuDishResponse)
@@ -88,36 +88,36 @@ public class MenuDishService {
     }
 
     public MenuDishResponse createMenuDish(MenuDishRequest request) {
-        Menu menu = menuRespository.findById(request.getMenuId())
+        Menu menu = menuRepository.findById(request.getMenuId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
-        Dish dish = dishRespository.findById(request.getDishesId())
+        Dish dish = dishRepository.findById(request.getDishesId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
         MenuDish menuDish = menuDishMapper.toMenuDish(request);
         menuDish.setCreatedAt(LocalDateTime.now());
         menuDish.setMenus(menu);
         menuDish.setDishes(dish);
-        return menuDishMapper.toMenuDishResponse(menuDishRespository.save(menuDish));
+        return menuDishMapper.toMenuDishResponse(menuDishRepository.save(menuDish));
     }
 
     public MenuDishResponse updateMenuDish(int id, MenuDishRequest request) {
-        MenuDish menuDish = menuDishRespository.findById(id)
+        MenuDish menuDish = menuDishRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn"));
-        Dish dish = dishRespository.findById(request.getDishesId())
+        Dish dish = dishRepository.findById(request.getDishesId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
-        Menu menu = menuRespository.findById(request.getMenuId())
+        Menu menu = menuRepository.findById(request.getMenuId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
         menuDish.setUpdatedAt(LocalDateTime.now());
         menuDish.setMenus(menu);
         menuDish.setDishes(dish);
         menuDishMapper.updateMenuDish(menuDish, request);
-        return menuDishMapper.toMenuDishResponse(menuDishRespository.save(menuDish));
+        return menuDishMapper.toMenuDishResponse(menuDishRepository.save(menuDish));
     }
 
     public void deleteMenuDish(int id) {
-        MenuDish menuDish = menuDishRespository.findById(id)
+        MenuDish menuDish = menuDishRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn"));
 
         menuDish.setDeletedAt(LocalDateTime.now());
-        menuDishRespository.save(menuDish);
+        menuDishRepository.save(menuDish);
     }
 }

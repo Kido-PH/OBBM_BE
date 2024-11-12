@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UGPRespository extends JpaRepository<UserGroupPermission, Integer> {
+public interface UGPRepository extends JpaRepository<UserGroupPermission, Integer> {
     @Query("SELECT ugp FROM UserGroupPermission ugp " +
             "JOIN ugp.users u " +
             "JOIN ugp.pergroups g " +

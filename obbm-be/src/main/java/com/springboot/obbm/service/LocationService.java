@@ -9,7 +9,7 @@ import com.springboot.obbm.mapper.LocationMapper;
 import com.springboot.obbm.model.Location;
 import com.springboot.obbm.model.User;
 import com.springboot.obbm.respository.LocationRespository;
-import com.springboot.obbm.respository.UserRespository;
+import com.springboot.obbm.respository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LocationService {
     LocationRespository locationRespository;
-    UserRespository userRespository;
+    UserRepository userRepository;
     LocationMapper locationMapper;
 
     public PageImpl<LocationResponse> getAllLocation(int page, int size) {
@@ -62,7 +62,7 @@ public class LocationService {
     }
 
     public LocationResponse createLocationUser(LocationUserRequest request) {
-        User user = userRespository.findById(request.getUserId())
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
         Location location = locationMapper.toLocationUser(request);
         location.setCreatedAt(LocalDateTime.now());

@@ -6,7 +6,7 @@ import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.EventMapper;
 import com.springboot.obbm.model.Event;
-import com.springboot.obbm.respository.EventRespository;
+import com.springboot.obbm.respository.EventRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class EventService {
-    EventRespository eventRespository;
+    EventRepository eventRepository;
     EventMapper eventMapper;
 
     public PageImpl<EventResponse> getAllEvents(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Event> eventPage = eventRespository.findAllByDeletedAtIsNull(pageable);
+        Page<Event> eventPage = eventRepository.findAllByDeletedAtIsNull(pageable);
 
         var responseList = eventPage.getContent().stream()
                 .distinct()
@@ -60,7 +60,7 @@ public class EventService {
     }
 
     public EventResponse getEventById(int id) {
-        Event event = eventRespository.findByEventIdAndDeletedAtIsNull(id)
+        Event event = eventRepository.findByEventIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
 
 /*//        event.setListContract(
@@ -87,22 +87,22 @@ public class EventService {
     public EventResponse createEvent(EventRequest request) {
         Event event = eventMapper.toEvent(request);
         event.setCreatedAt(LocalDateTime.now());
-        return eventMapper.toEventResponse(eventRespository.save(event));
+        return eventMapper.toEventResponse(eventRepository.save(event));
     }
 
     public EventResponse updateEvent(int id, EventRequest request) {
-        Event event = eventRespository.findByEventIdAndDeletedAtIsNull(id).orElseThrow(
+        Event event = eventRepository.findByEventIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
         event.setUpdatedAt(LocalDateTime.now());
         eventMapper.updateEvent(event, request);
-        return eventMapper.toEventResponse(eventRespository.save(event));
+        return eventMapper.toEventResponse(eventRepository.save(event));
     }
 
     public void deleteEvent(int id) {
-        Event event = eventRespository.findByEventIdAndDeletedAtIsNull(id).orElseThrow(
+        Event event = eventRepository.findByEventIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
 
         event.setDeletedAt(LocalDateTime.now());
-        eventRespository.save(event);
+        eventRepository.save(event);
     }
 }

@@ -5,11 +5,10 @@ import com.springboot.obbm.dto.ugp.response.PermissionResponse;
 import com.springboot.obbm.dto.ugp.response.UserPermissionResponse;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
-import com.springboot.obbm.mapper.PermissionMapper;
 import com.springboot.obbm.model.User;
 import com.springboot.obbm.model.UserGroupPermission;
-import com.springboot.obbm.respository.UGPRespository;
-import com.springboot.obbm.respository.UserRespository;
+import com.springboot.obbm.respository.UGPRepository;
+import com.springboot.obbm.respository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,15 +26,15 @@ import java.util.Map;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserGroupPermissionService {
-    UGPRespository ugpRespository;
-    UserRespository userRespository;
+    UGPRepository ugpRepository;
+    UserRepository userRepository;
 
     public UserPermissionResponse finUserPermissions() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
-        User user = userRespository.findByUsername(name).orElseThrow(
+        User user = userRepository.findByUsername(name).orElseThrow(
                 () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
-        List<UserGroupPermission> permissions = ugpRespository.findByUserId(user.getUserId());
+        List<UserGroupPermission> permissions = ugpRepository.findByUserId(user.getUserId());
 
         Map<String, PerGroupResponse> perGroupMap = new HashMap<>();
         for (UserGroupPermission ugp : permissions) {

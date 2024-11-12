@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MenuDishRespository extends JpaRepository<MenuDish, Integer> {
+public interface MenuDishRepository extends JpaRepository<MenuDish, Integer> {
     Page<MenuDish> findAllByDeletedAtIsNull(Pageable pageable);
 
     Optional<MenuDish> findByMenudishIdAndDeletedAtIsNull(int id);

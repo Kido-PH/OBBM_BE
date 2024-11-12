@@ -14,7 +14,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
     String userId;
     String username;
@@ -24,6 +23,7 @@ public class UserResponse {
     String phone;
     String image;
     String citizenIdentity;
+    Boolean noPassword = false;
     Set<RoleForUserResponse> roles;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

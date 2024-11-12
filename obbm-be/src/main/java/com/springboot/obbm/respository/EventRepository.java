@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface EventRespository extends JpaRepository<Event, Integer> {
+public interface EventRepository extends JpaRepository<Event, Integer> {
     Page<Event> findAllByDeletedAtIsNull(Pageable pageable);
 
     Optional<Event> findByEventIdAndDeletedAtIsNull(int id);

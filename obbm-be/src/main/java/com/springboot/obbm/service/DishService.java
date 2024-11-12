@@ -7,8 +7,8 @@ import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.DishMapper;
 import com.springboot.obbm.model.Category;
 import com.springboot.obbm.model.Dish;
-import com.springboot.obbm.respository.CategoryRespository;
-import com.springboot.obbm.respository.DishRespository;
+import com.springboot.obbm.respository.CategoryRepository;
+import com.springboot.obbm.respository.DishRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,13 +26,13 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class DishService {
-    DishRespository dishRespository;
-    CategoryRespository categoryRespository;
+    DishRepository dishRepository;
+    CategoryRepository categoryRepository;
     DishMapper dishMapper;
 
     public PageImpl<DishResponse> getAllDishes(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Dish> dishPage = dishRespository.findAllByDeletedAtIsNull(pageable);
+        Page<Dish> dishPage = dishRepository.findAllByDeletedAtIsNull(pageable);
 
         var responseList = dishPage.getContent().stream()
                 .distinct().map(dishMapper::toDishResponse)
@@ -41,37 +41,37 @@ public class DishService {
     }
 
     public DishResponse getDishById(int id) {
-        return dishMapper.toDishResponse(dishRespository.findByDishIdAndDeletedAtIsNull(id)
+        return dishMapper.toDishResponse(dishRepository.findByDishIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn")));
     }
 
     public DishResponse createDish(DishRequest request){
         Dish dish = dishMapper.toDish(request);
-        Category category = categoryRespository.findById(request.getCategoryId())
+        Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow( () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
         dish.setCategories(category);
         dish.setCreatedAt(LocalDateTime.now());
 
-        return dishMapper.toDishResponse(dishRespository.save(dish));
+        return dishMapper.toDishResponse(dishRepository.save(dish));
     }
 
     public DishResponse updateDish(int id, DishRequest request){
-        Dish dish = dishRespository.findByDishIdAndDeletedAtIsNull(id).orElseThrow(
+        Dish dish = dishRepository.findByDishIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
-        Category category = categoryRespository.findById(request.getCategoryId())
+        Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow( () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
         dish.setCategories(category);
         dish.setCreatedAt(LocalDateTime.now());
 
         dishMapper.upadteDish(dish, request);
-        return dishMapper.toDishResponse(dishRespository.save(dish));
+        return dishMapper.toDishResponse(dishRepository.save(dish));
     }
 
     public void deleteDish(int id) {
-        Dish dish = dishRespository.findByDishIdAndDeletedAtIsNull(id).orElseThrow(
+        Dish dish = dishRepository.findByDishIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
 
         dish.setDeletedAt(LocalDateTime.now());
-        dishRespository.save(dish);
+        dishRepository.save(dish);
     }
 }

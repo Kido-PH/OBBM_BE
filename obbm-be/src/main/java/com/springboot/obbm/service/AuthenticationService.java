@@ -14,13 +14,12 @@ import com.springboot.obbm.model.User;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.respository.InvalidatedTokenRepository;
-import com.springboot.obbm.respository.UserRespository;
+import com.springboot.obbm.respository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import feign.FeignException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,6 +38,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -47,7 +47,7 @@ import java.util.*;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
-    UserRespository userRepository;
+    UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
     OutboundObbmClient outboundObbmClient;
     OutboundUserClient outboundUserClient;
@@ -79,6 +79,22 @@ public class AuthenticationService {
     @NonFinal
     protected String GRANT_TYPE = "authorization_code";
 
+    public IntrospectResponse introspect(IntrospectRequest request)
+            throws JOSEException, ParseException {
+        var token = request.getToken();
+        boolean isValid = true;
+
+        try {
+            verifyToken(token, false);
+        } catch (AppException e) {
+            isValid = false;
+        }
+
+        return IntrospectResponse.builder()
+                .valid(isValid)
+                .build();
+    }
+
     public AuthenticationResponse outboundAuthentication(String code) {
         ExchangeTokenRequest tokenRequest = ExchangeTokenRequest.builder()
                 .code(code)
@@ -102,29 +118,18 @@ public class AuthenticationService {
                         .fullname(userInfo.getName())
                         .email(userInfo.getEmail())
                         .image(userInfo.getPicture())
+                        .createdAt(LocalDateTime.now())
                         .roles(roles)
                         .build()));
 
+        var accessToken = generateAccessToken(user);
+
         return AuthenticationResponse.builder()
-                .accessToken(response.getAccessToken())
+                .accessToken(accessToken)
                 .build();
     }
 
-    public IntrospectResponse introspect(IntrospectRequest request)
-            throws JOSEException, ParseException {
-        var token = request.getToken();
-        boolean isValid = true;
 
-        try {
-            verifyToken(token, false);
-        } catch (AppException e) {
-            isValid = false;
-        }
-
-        return IntrospectResponse.builder()
-                .valid(isValid)
-                .build();
-    }
 
     private SignedJWT verifyToken(String token, boolean isRefresh) throws ParseException, JOSEException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
@@ -240,7 +245,7 @@ public class AuthenticationService {
                         Instant.now().plus(duration, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope", buildScope(user))  // Chứa các quyền (roles) của người dùng
+                .claim("scope", buildScope(user)) // Lưu các quyền của người dùng
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

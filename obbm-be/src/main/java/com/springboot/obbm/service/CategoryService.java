@@ -6,7 +6,7 @@ import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.CategoryMapper;
 import com.springboot.obbm.model.Category;
-import com.springboot.obbm.respository.CategoryRespository;
+import com.springboot.obbm.respository.CategoryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class CategoryService {
-    CategoryRespository categoryRespository;
+    CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
 
     public PageImpl<CategoryResponse> getAllCategories(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Category> categoryPage = categoryRespository.findAllByDeletedAtIsNull(pageable);
+        Page<Category> categoryPage = categoryRepository.findAllByDeletedAtIsNull(pageable);
 
         var responseList = categoryPage.getContent().stream()
                 .map(category -> {
@@ -48,7 +48,7 @@ public class CategoryService {
     }
 
     public CategoryResponse getCategoryById(int id) {
-        Category category = categoryRespository.findByCategoryIdAndDeletedAtIsNull(id)
+        Category category = categoryRepository.findByCategoryIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
 
         category.setListDish(
@@ -63,23 +63,23 @@ public class CategoryService {
     public CategoryResponse createCategory(CategoryRequest request) {
         Category category = categoryMapper.toCategory(request);
         category.setCreatedAt(LocalDateTime.now());
-        return categoryMapper.toCategoryResponse(categoryRespository.save(category));
+        return categoryMapper.toCategoryResponse(categoryRepository.save(category));
     }
 
     public CategoryResponse updateCategory(int id, CategoryRequest request) {
-        Category category = categoryRespository.findByCategoryIdAndDeletedAtIsNull(id).orElseThrow(
+        Category category = categoryRepository.findByCategoryIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
         category.setUpdatedAt(LocalDateTime.now());
 
         categoryMapper.updateCategory(category, request);
-        return categoryMapper.toCategoryResponse(categoryRespository.save(category));
+        return categoryMapper.toCategoryResponse(categoryRepository.save(category));
     }
 
     public void deleteCategory(int id) {
-        Category category = categoryRespository.findByCategoryIdAndDeletedAtIsNull(id).orElseThrow(
+        Category category = categoryRepository.findByCategoryIdAndDeletedAtIsNull(id).orElseThrow(
                 () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Danh mục"));
 
         category.setDeletedAt(LocalDateTime.now());
-        categoryRespository.save(category);
+        categoryRepository.save(category);
     }
 }

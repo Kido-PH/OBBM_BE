@@ -4,7 +4,7 @@ import com.springboot.obbm.constant.PredefinedRole;
 import com.springboot.obbm.model.User;
 import com.springboot.obbm.model.Role;
 import com.springboot.obbm.respository.RoleRepository;
-import com.springboot.obbm.respository.UserRespository;
+import com.springboot.obbm.respository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,9 +32,9 @@ public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
 
     @Bean
-    ApplicationRunner applicationRunner(UserRespository userRespository, RoleRepository roleRepository) {
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            if (userRespository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
+            if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
                 roleRepository.save(Role.builder()
                         .name(PredefinedRole.USER_ROLE)
                         .description("User role")
@@ -54,7 +54,7 @@ public class ApplicationInitConfig {
                         .roles(roles)
                         .build();
 
-                userRespository.save(user);
+                userRepository.save(user);
                 log.warn("admin user has been created with default password: admin, please change it");
             }
             log.info("Application initialization completed .....");
