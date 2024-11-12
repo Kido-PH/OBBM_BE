@@ -24,7 +24,7 @@ public class UserResponse {
     String phone;
     String image;
     String citizenIdentity;
-    Set<RoleResponse> roles;
+    Set<RoleForUserResponse> roles;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

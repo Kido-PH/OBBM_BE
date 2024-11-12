@@ -52,14 +52,8 @@ public class ContractService {
         return new PageImpl<>(responseList, pageable, contractPage.getTotalElements());
     }
 
-    public ContractResponse getLatestContractByUserId() {
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
-        log.info("Name: " + name);
-        User user = userRespository.findByUsername(name).orElseThrow(
-                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
-
-        Contract contract = contractRespository.findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(user.getUserId())
+    public ContractResponse getLatestContractByUserId(String userId) {
+        Contract contract = contractRespository.findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Hợp đồng"));
 
         contract.setListStockrequests(

@@ -12,11 +12,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class) //Viết tất cả các thuộc tính theo "snake_case"
-public class ExchangeTokenResponse {
-    String accessToken;
-    Long expiresIn;
-    String refreshToken;
-    String scope;
-    String tokenType;
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public class OutboundUserResponse {
+    String id;
+    String email;
+    Boolean verifiedEmail;
+    String name;
+    String picture;
 }

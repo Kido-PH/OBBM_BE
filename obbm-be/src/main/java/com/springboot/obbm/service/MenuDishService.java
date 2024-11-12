@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,27 @@ public class MenuDishService {
     MenuRespository menuRespository;
     DishRespository dishRespository;
     MenuDishMapper menuDishMapper;
+
+    public List<MenuDishResponse> saveAllMenuDish(List<MenuDishRequest> requestList) {
+        List<MenuDish> menuDishList = new ArrayList<>();
+        for (MenuDishRequest request : requestList) {
+            Menu menu = menuRespository.findById(request.getMenuId())
+                    .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
+
+            Dish dish = dishRespository.findByDishIdAndDeletedAtIsNull(request.getDishesId())
+                    .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
+
+            MenuDish menuDish = menuDishMapper.toMenuDish(request);
+            menuDish.setCreatedAt(LocalDateTime.now());
+            menuDish.setMenus(menu);
+            menuDish.setDishes(dish);
+
+            menuDishList.add(menuDish);
+        }
+
+
+        return menuDishMapper.toMenuDishResponseList(menuDishRespository.saveAll(menuDishList));
+    }
 
     public PageImpl<MenuDishResponse> getAllMenuDishs(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

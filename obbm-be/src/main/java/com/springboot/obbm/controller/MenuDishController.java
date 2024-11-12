@@ -10,6 +10,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/menudish")
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class MenuDishController {
     private MenuDishService menuDishService;
 
     @GetMapping
-    ApiResponse<PageImpl<MenuDishResponse>> getAllDishes(
+    ApiResponse<PageImpl<MenuDishResponse>> getAllMenuDishes(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
         try {
@@ -64,28 +66,36 @@ public class MenuDishController {
     }
 
     @GetMapping("/{id}")
-    ApiResponse<MenuDishResponse> getDish(@PathVariable int id) {
+    ApiResponse<MenuDishResponse> getMenuDish(@PathVariable int id) {
         return ApiResponse.<MenuDishResponse>builder()
                 .result(menuDishService.getMenuDishById(id))
                 .build();
     }
 
     @PostMapping
-    public ApiResponse<MenuDishResponse> createDish(@RequestBody MenuDishRequest request) {
+    public ApiResponse<MenuDishResponse> createMenuDish(@RequestBody MenuDishRequest request) {
         return ApiResponse.<MenuDishResponse>builder()
                 .result(menuDishService.createMenuDish(request))
                 .build();
     }
 
+    @PostMapping("/saveAllMenuDish")
+    public ApiResponse<List<MenuDishResponse>> saveAllMenuDish(@RequestBody List<MenuDishRequest> requestList) {
+        return ApiResponse.<List<MenuDishResponse>>builder()
+                .result(menuDishService.saveAllMenuDish(requestList))
+                .build();
+    }
+
+
     @PutMapping("/{id}")
-    public ApiResponse<MenuDishResponse> updateDish(@PathVariable int id, @RequestBody MenuDishRequest request) {
+    public ApiResponse<MenuDishResponse> updateMenuDish(@PathVariable int id, @RequestBody MenuDishRequest request) {
         return ApiResponse.<MenuDishResponse>builder()
                 .result(menuDishService.updateMenuDish(id, request))
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<?> deleteDish(@PathVariable int id) {
+    public ApiResponse<?> deleteMenuDish(@PathVariable int id) {
         menuDishService.deleteMenuDish(id);
         return ApiResponse.builder()
                 .message("Thực đơn món ăn đã bị xóa.")

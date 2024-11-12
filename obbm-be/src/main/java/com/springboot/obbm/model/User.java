@@ -60,6 +60,9 @@ public class User {
     @OneToMany(mappedBy = "users")
     List<EventServices> listEventServices;
 
+    @OneToMany(mappedBy = "users")
+    List<UserGroupPermission> listUserGroupPermissions;
+
     @ManyToMany
     Set<Role> roles;
 

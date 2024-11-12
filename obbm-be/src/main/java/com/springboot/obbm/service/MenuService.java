@@ -55,14 +55,8 @@ public class MenuService {
         return new PageImpl<>(responseList, pageable, menuPage.getTotalElements());
     }
 
-    public MenuResponse getLatestMenuByUserId() {
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
-        log.info("Name: " + name);
-        User user = userRespository.findByUsername(name).orElseThrow(
-                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
-
-        Menu menu = menuRespository.findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(user.getUserId())
+    public MenuResponse getLatestMenuByUserId(String userId) {
+        Menu menu = menuRespository.findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
 
         menu.setListMenuDish(

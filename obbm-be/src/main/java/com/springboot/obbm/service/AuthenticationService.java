@@ -1,12 +1,15 @@
 package com.springboot.obbm.service;
 
 import com.springboot.obbm.client.OutboundObbmClient;
+import com.springboot.obbm.client.OutboundUserClient;
+import com.springboot.obbm.constant.PredefinedRole;
 import com.springboot.obbm.dto.request.AuthenticationRequest;
 import com.springboot.obbm.dto.request.ExchangeTokenRequest;
 import com.springboot.obbm.dto.request.IntrospectRequest;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
 import com.springboot.obbm.model.InvalidatedToken;
+import com.springboot.obbm.model.Role;
 import com.springboot.obbm.model.User;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
@@ -37,10 +40,7 @@ import org.springframework.util.CollectionUtils;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +50,7 @@ public class AuthenticationService {
     UserRespository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
     OutboundObbmClient outboundObbmClient;
+    OutboundUserClient outboundUserClient;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -88,6 +89,21 @@ public class AuthenticationService {
                 .build();
         var response = outboundObbmClient.exchangeToken(tokenRequest);
         log.info("Received token response: {}", response);
+
+        var userInfo = outboundUserClient.getUserInfo("json", response.getAccessToken());
+        log.info("Received user info: {}", userInfo);
+
+        Set<Role> roles = new HashSet<>();
+        roles.add(Role.builder().name(PredefinedRole.USER_ROLE).build());
+
+        var user = userRepository.findByUsername(userInfo.getEmail()).orElseGet(
+                () -> userRepository.save(User.builder()
+                        .username(userInfo.getEmail())
+                        .fullname(userInfo.getName())
+                        .email(userInfo.getEmail())
+                        .image(userInfo.getPicture())
+                        .roles(roles)
+                        .build()));
 
         return AuthenticationResponse.builder()
                 .accessToken(response.getAccessToken())

@@ -40,10 +40,10 @@ public class ContractController {
     }
 
 
-    @GetMapping("/latestContract")
-    ApiResponse<ContractResponse> getLatestContract() {
+    @GetMapping("/latestContract/{id}")
+    ApiResponse<ContractResponse> getLatestContract(@PathVariable String id) {
         return ApiResponse.<ContractResponse>builder()
-                .result(contractService.getLatestContractByUserId())
+                .result(contractService.getLatestContractByUserId(id))
                 .build();
     }
 
