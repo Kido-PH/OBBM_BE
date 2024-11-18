@@ -22,50 +22,99 @@ public class MenuController {
     ApiResponse<PageImpl<MenuResponse>> getAllMenus(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
-        try{
+        try {
             int adjustedPage = (page > 0) ? page - 1 : 0;
             return ApiResponse.<PageImpl<MenuResponse>>builder()
-                    .result(menuService.getAllMenus(adjustedPage,size))
+                    .result(menuService.getAllMenus(adjustedPage, size))
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    @GetMapping("/latestMenu/{id}")
-    ApiResponse<MenuResponse> getLatestMenu(@PathVariable String id) {
+    @GetMapping("/getAlLMenuUser")
+    ApiResponse<PageImpl<MenuResponse>> getAllUserMenus(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<MenuResponse>>builder()
+                    .result(menuService.getAllUserOrAdminMenus(adjustedPage, size, false))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/getAlLMenuAdmin")
+    ApiResponse<PageImpl<MenuResponse>> getAllAdminOrUserMenus(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<MenuResponse>>builder()
+                    .result(menuService.getAllUserOrAdminMenus(adjustedPage, size, true))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/getAllMenu/{userId}")
+    ApiResponse<PageImpl<MenuResponse>> getAllMenusByUserId(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<MenuResponse>>builder()
+                    .result(menuService.getAllMenuByUserId(userId, adjustedPage, size))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/latestMenu/{userId}")
+    ApiResponse<MenuResponse> getLatestMenuByUserId(@PathVariable String userId) {
         return ApiResponse.<MenuResponse>builder()
-                .result(menuService.getLatestMenuByUserId(id))
+                .result(menuService.getLatestMenuByUserId(userId))
                 .build();
     }
 
-    @GetMapping("/{id}")
-    ApiResponse<MenuResponse> getCategory(@PathVariable int id) {
+    @GetMapping("/{menuId}")
+    ApiResponse<MenuResponse> getMenu(@PathVariable int menuId) {
         return ApiResponse.<MenuResponse>builder()
-                .result(menuService.getMenuById(id))
+                .result(menuService.getMenuById(menuId))
                 .build();
     }
 
-    @PostMapping
-    ApiResponse<MenuResponse> createCategory(@RequestBody MenuCreateRequest request){
+    @PostMapping("/admin")
+    ApiResponse<MenuResponse> createAdminMenu(@RequestBody MenuCreateRequest request) {
         return ApiResponse.<MenuResponse>builder()
-                .result(menuService.createMenu(request))
+                .result(menuService.createAdminMenu(request))
                 .build();
     }
 
-    @PutMapping("/{id}")
-    ApiResponse<MenuResponse> updateCategory(@PathVariable int id, @RequestBody MenuUpdateRequest request){
+    @PostMapping("/user")
+    ApiResponse<MenuResponse> createUserMenu(@RequestBody MenuCreateRequest request) {
         return ApiResponse.<MenuResponse>builder()
-                .result(menuService.updateMenu(id,request))
+                .result(menuService.createUserMenu(request))
                 .build();
     }
 
-    @DeleteMapping("/{id}")
-    ApiResponse<?> deleteCategory(@PathVariable int id) {
-        menuService.deleteMenu(id);
+    @PutMapping("/{menuId}")
+    ApiResponse<MenuResponse> updateMenu(@PathVariable int menuId, @RequestBody MenuUpdateRequest request) {
+        return ApiResponse.<MenuResponse>builder()
+                .result(menuService.updateMenu(menuId, request))
+                .build();
+    }
+
+    @DeleteMapping("/{menuId}")
+    ApiResponse<?> deleteMenu(@PathVariable int menuId) {
+        menuService.deleteMenu(menuId);
         return ApiResponse.builder()
                 .message("Thực đơn đã bị xóa.")
                 .build();
     }
-
 }

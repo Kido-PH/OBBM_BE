@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "UGPid")
 public class UserGroupPermission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

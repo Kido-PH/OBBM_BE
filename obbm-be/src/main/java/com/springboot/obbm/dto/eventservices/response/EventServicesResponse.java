@@ -1,9 +1,10 @@
-package com.springboot.obbm.dto.event.response;
+package com.springboot.obbm.dto.eventservices.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.springboot.obbm.dto.eventservices.response.ServiceForEventServicesResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -11,9 +12,12 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class EventServicesForEventResponse {
+public class EventServicesResponse {
     Integer eventserviceId;
     Integer quantity;
     Double cost;
+    EventForEventServicesResponse events;
     ServiceForEventServicesResponse services;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

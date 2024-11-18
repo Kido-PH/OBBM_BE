@@ -22,7 +22,6 @@ public interface MenuDishMapper {
     @Mapping(target = "dishes", ignore = true)
     void updateMenuDish(@MappingTarget MenuDish menuDish, MenuDishRequest request);
 
-    List<MenuDish> toMenuDishList(List<MenuDishRequest> requests);
     List<MenuDishResponse> toMenuDishResponseList(List<MenuDish> dishes);
 
 }

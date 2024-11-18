@@ -1,4 +1,4 @@
-package com.springboot.obbm.dto.eventservice.request;
+package com.springboot.obbm.dto.eventservices.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventServiceAdminRequest {
+public class EventServicesRequest {
     Integer quantity;
     Double cost;
     Integer eventId;

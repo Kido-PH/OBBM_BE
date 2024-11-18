@@ -13,4 +13,10 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     Page<Event> findAllByDeletedAtIsNull(Pageable pageable);
 
     Optional<Event> findByEventIdAndDeletedAtIsNull(int id);
+
+    Optional<Event> findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(String users_userId);
+
+    Page<Event> findAllByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(String users_userId, Pageable pageable);
+
+    Page<Event> findAllByIsmanagedAndDeletedAtIsNull(boolean ismanaged, Pageable pageable);
 }

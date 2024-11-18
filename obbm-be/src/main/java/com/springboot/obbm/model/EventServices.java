@@ -15,12 +15,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "eventserviceId")
 public class EventServices {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer eventserviceId;
-
 
     @Column(name = "eventservice_quantity")
     Integer quantity;
@@ -35,10 +34,6 @@ public class EventServices {
     @ManyToOne
     @JoinColumn(name = "service_id")
     Services services;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    User users;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

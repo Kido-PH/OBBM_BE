@@ -54,6 +54,44 @@ public class MenuService {
         return new PageImpl<>(responseList, pageable, menuPage.getTotalElements());
     }
 
+    public PageImpl<MenuResponse> getAllUserOrAdminMenus(int page, int size, boolean isAdmin) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Menu> menuPage = menuRepository.findAllByIsmanagedAndDeletedAtIsNull(isAdmin, pageable);
+
+        var responseList = menuPage.getContent().stream()
+                .map(menu -> {
+                    menu.setListMenuDish(
+                            menu.getListMenuDish().stream()
+                                    .filter(menuDish -> menuDish.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    return menuMapper.toMenuResponse(menu);
+                })
+                .distinct()
+                .toList();
+
+        return new PageImpl<>(responseList, pageable, menuPage.getTotalElements());
+    }
+
+    public PageImpl<MenuResponse> getAllMenuByUserId(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Menu> menuPage = menuRepository.findAllByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(userId, pageable);
+
+        var responseList = menuPage.getContent().stream()
+                .map(menu -> {
+                    menu.setListMenuDish(
+                            menu.getListMenuDish().stream()
+                                    .filter(menuDish -> menuDish.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    return menuMapper.toMenuResponse(menu);
+                })
+                .distinct()
+                .toList();
+
+        return new PageImpl<>(responseList, pageable, menuPage.getTotalElements());
+    }
+
     public MenuResponse getLatestMenuByUserId(String userId) {
         Menu menu = menuRepository.findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
@@ -75,18 +113,33 @@ public class MenuService {
                 menu.getListMenuDish().stream()
                         .filter(menuDish -> menuDish.getDeletedAt() == null)
                         .collect(Collectors.toList())
+
         );
 
         return menuMapper.toMenuResponse(menu);
     }
 
-    public MenuResponse createMenu(MenuCreateRequest request) {
+    public MenuResponse createAdminMenu(MenuCreateRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
         Menu menu = menuMapper.toMenu(request);
+        menu.setIsmanaged(true);
         menu.setCreatedAt(LocalDateTime.now());
+        menu.setUsers(user);
+        menu.setEvents(event);
+        return menuMapper.toMenuResponse(menuRepository.save(menu));
+    }
+
+    public MenuResponse createUserMenu(MenuCreateRequest request) {
+        Event event = eventRepository.findById(request.getEventId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+        Menu menu = menuMapper.toMenu(request);
+        menu.setCreatedAt(LocalDateTime.now());
+        menu.setIsmanaged(false);
         menu.setUsers(user);
         menu.setEvents(event);
         return menuMapper.toMenuResponse(menuRepository.save(menu));

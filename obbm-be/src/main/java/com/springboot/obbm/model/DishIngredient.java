@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "dishingredientId")
 public class DishIngredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "menuId")
 public class Menu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +30,9 @@ public class Menu {
 
     @Column(name = "menu_totalcost")
     Double totalcost;
+
+    @Column(name = "menu_ismanaged")
+    Boolean ismanaged;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

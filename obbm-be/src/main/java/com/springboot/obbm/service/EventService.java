@@ -6,7 +6,9 @@ import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.EventMapper;
 import com.springboot.obbm.model.Event;
+import com.springboot.obbm.model.User;
 import com.springboot.obbm.respository.EventRepository;
+import com.springboot.obbm.respository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EventService {
     EventRepository eventRepository;
+    UserRepository userRepository;
     EventMapper eventMapper;
 
     public PageImpl<EventResponse> getAllEvents(int page, int size) {
@@ -40,13 +43,6 @@ public class EventService {
                                     .filter(eventService -> eventService.getDeletedAt() == null)
                                     .collect(Collectors.toList())
                     );
-
-/*//                    event.setListContract(
-//                            event.getListContract().stream()
-//                                    .filter(contract -> contract.getDeletedAt() == null)
-//                                    .collect(Collectors.toList())
-//                    );*/
-
                     event.setListMenu(
                             event.getListMenu().stream()
                                     .filter(menu -> menu.getDeletedAt() == null)
@@ -59,16 +55,75 @@ public class EventService {
         return new PageImpl<>(responseList, pageable, eventPage.getTotalElements());
     }
 
+    public PageImpl<EventResponse> getAllAdminOrUserEvents(boolean isAdmin,int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Event> eventPage = eventRepository.findAllByIsmanagedAndDeletedAtIsNull(isAdmin, pageable);
+
+        var responseList = eventPage.getContent().stream()
+                .distinct()
+                .map(event -> {
+                    event.setListEventServices(
+                            event.getListEventServices().stream()
+                                    .filter(eventService -> eventService.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    event.setListMenu(
+                            event.getListMenu().stream()
+                                    .filter(menu -> menu.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    return eventMapper.toEventResponse(event);
+                })
+                .distinct()
+                .toList();
+        return new PageImpl<>(responseList, pageable, eventPage.getTotalElements());
+    }
+
+    public PageImpl<EventResponse> getAllEventsByUserId(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Event> eventPage = eventRepository.findAllByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(userId, pageable);
+
+        var responseList = eventPage.getContent().stream()
+                .distinct()
+                .map(event -> {
+                    event.setListEventServices(
+                            event.getListEventServices().stream()
+                                    .filter(eventService -> eventService.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    event.setListMenu(
+                            event.getListMenu().stream()
+                                    .filter(menu -> menu.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    return eventMapper.toEventResponse(event);
+                })
+                .distinct()
+                .toList();
+        return new PageImpl<>(responseList, pageable, eventPage.getTotalElements());
+    }
+
+    public EventResponse getLatestEventByUserId(String userId) {
+        Event event = eventRepository.findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn"));
+
+        event.setListEventServices(
+                event.getListEventServices().stream()
+                        .filter(eventService -> eventService.getDeletedAt() == null)
+                        .collect(Collectors.toList())
+        );
+        event.setListMenu(
+                event.getListMenu().stream()
+                        .filter(menu -> menu.getDeletedAt() == null)
+                        .collect(Collectors.toList())
+        );
+
+        return eventMapper.toEventResponse(event);
+    }
+
     public EventResponse getEventById(int id) {
         Event event = eventRepository.findByEventIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
-
-/*//        event.setListContract(
-//                event.getListContract().stream()
-//                        .filter(contract -> contract.getDeletedAt() == null)
-//                        .collect(Collectors.toList())
-//        );*/
-
         event.setListMenu(
                 event.getListMenu().stream()
                         .filter(menu -> menu.getDeletedAt() == null)
@@ -84,11 +139,27 @@ public class EventService {
         return eventMapper.toEventResponse(event);
     }
 
-    public EventResponse createEvent(EventRequest request) {
+    public EventResponse createAdminEvent(EventRequest request) {
+
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
         Event event = eventMapper.toEvent(request);
+        event.setUsers(user);
+        event.setIsmanaged(true);
         event.setCreatedAt(LocalDateTime.now());
         return eventMapper.toEventResponse(eventRepository.save(event));
     }
+
+    public EventResponse createUserEvent(EventRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+        Event event = eventMapper.toEvent(request);
+        event.setUsers(user);
+        event.setIsmanaged(false);
+        event.setCreatedAt(LocalDateTime.now());
+        return eventMapper.toEventResponse(eventRepository.save(event));
+    }
+
 
     public EventResponse updateEvent(int id, EventRequest request) {
         Event event = eventRepository.findByEventIdAndDeletedAtIsNull(id).orElseThrow(

@@ -20,3 +20,4 @@ public interface MenuMapper {
     @Mapping(target = "events", ignore = true)
     void updateMenu(@MappingTarget Menu menu, MenuUpdateRequest request);
 }
+

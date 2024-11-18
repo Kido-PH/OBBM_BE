@@ -18,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contractId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -58,7 +58,7 @@ public class User {
     List<Contract> listContract;
 
     @OneToMany(mappedBy = "users")
-    List<EventServices> listEventServices;
+    List<Event> listEvent;
 
     @OneToMany(mappedBy = "users")
     List<UserGroupPermission> listUserGroupPermissions;

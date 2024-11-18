@@ -1,11 +1,12 @@
-package com.springboot.obbm.dto.menu.response;
+package com.springboot.obbm.dto.dishingredient.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.springboot.obbm.model.Dish;
+import com.springboot.obbm.model.Ingredient;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -13,15 +14,12 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MenuResponse {
-    Integer menuId;
-    String name;
-    Double totalcost;
-    String description;
-    Boolean ismanaged;
-    UserForMenuResponse users;
-    EventForMenuResponse events;
-    List<MenuDishForMenuResponse> listMenuDish;
+public class DishIngredientResponse {
+    Integer dishingredientId;
+    String quantity;
+    String desc;
+    Dish dishes;
+    Ingredient ingredients;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

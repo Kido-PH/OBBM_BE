@@ -1,8 +1,9 @@
 package com.springboot.obbm.controller;
 
-import com.springboot.obbm.dto.eventservice.request.EventServiceAdminRequest;
-import com.springboot.obbm.dto.eventservice.request.EventServiceUserRequest;
-import com.springboot.obbm.dto.eventservice.response.EventServicesResponse;
+import com.springboot.obbm.dto.eventservices.request.EventServicesRequest;
+import com.springboot.obbm.dto.eventservices.response.EventServicesResponse;
+import com.springboot.obbm.dto.menudish.request.MenuDishRequest;
+import com.springboot.obbm.dto.menudish.response.MenuDishResponse;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.service.EventServicesService;
 import lombok.AccessLevel;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/eventservice")
@@ -71,22 +74,23 @@ public class EventServiceController {
                 .build();
     }
 
-    @PostMapping("/admin")
-    public ApiResponse<EventServicesResponse> createAdminEventService(@RequestBody EventServiceAdminRequest request) {
-        return ApiResponse.<EventServicesResponse>builder()
-                .result(eventServicesService.createAdminEventService(request))
+    @PostMapping("/saveAllMenuDish")
+    public ApiResponse<List<EventServicesResponse>> saveAllEventServices(@RequestBody List<EventServicesRequest> requestList) {
+        return ApiResponse.<List<EventServicesResponse>>builder()
+                .result(eventServicesService.saveAllEventServices(requestList))
                 .build();
     }
 
-    @PostMapping("/user")
-    public ApiResponse<EventServicesResponse> createUserEventService(@RequestBody EventServiceUserRequest request) {
+    @PostMapping()
+    public ApiResponse<EventServicesResponse> createAdminEventService(@RequestBody EventServicesRequest request) {
         return ApiResponse.<EventServicesResponse>builder()
-                .result(eventServicesService.createUserEventService(request))
+                .result(eventServicesService.createEventService(request))
                 .build();
     }
+
 
     @PutMapping("/{id}")
-    public ApiResponse<EventServicesResponse> updateEventService(@PathVariable int id, @RequestBody EventServiceAdminRequest request) {
+    public ApiResponse<EventServicesResponse> updateEventService(@PathVariable int id, @RequestBody EventServicesRequest request) {
         return ApiResponse.<EventServicesResponse>builder()
                 .result(eventServicesService.updateEventService(id, request))
                 .build();

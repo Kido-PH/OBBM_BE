@@ -19,6 +19,8 @@ public class EventResponse {
     Double totalcost;
     String description;
     String image;
+    Boolean ismanaged;
+    UserForEventResponse users;
     List<EventServicesForEventResponse> listEventServices;
     List<MenuForEventResponse> listMenu;
     LocalDateTime createdAt;

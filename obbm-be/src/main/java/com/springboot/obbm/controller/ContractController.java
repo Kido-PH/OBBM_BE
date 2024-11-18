@@ -22,10 +22,10 @@ public class ContractController {
     ApiResponse<PageImpl<ContractResponse>> getAllContracts(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
-        try{
+        try {
             int adjustedPage = (page > 0) ? page - 1 : 0;
             return ApiResponse.<PageImpl<ContractResponse>>builder()
-                    .result(contractService.getAllContracts(adjustedPage,size))
+                    .result(contractService.getAllContracts(adjustedPage, size))
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -64,16 +64,16 @@ public class ContractController {
     }
 
     @PostMapping
-    ApiResponse<ContractResponse> createCategory(@RequestBody ContractRequest request){
+    ApiResponse<ContractResponse> createCategory(@RequestBody ContractRequest request) {
         return ApiResponse.<ContractResponse>builder()
                 .result(contractService.createContract(request))
                 .build();
     }
 
     @PutMapping("/{id}")
-    ApiResponse<ContractResponse> updateContract(@PathVariable int id, @RequestBody ContractRequest request){
+    ApiResponse<ContractResponse> updateContract(@PathVariable int id, @RequestBody ContractRequest request) {
         return ApiResponse.<ContractResponse>builder()
-                .result(contractService.updateContract(id,request))
+                .result(contractService.updateContract(id, request))
                 .build();
     }
 

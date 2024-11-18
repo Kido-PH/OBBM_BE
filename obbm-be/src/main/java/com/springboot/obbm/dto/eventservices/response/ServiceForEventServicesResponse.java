@@ -1,4 +1,4 @@
-package com.springboot.obbm.dto.eventservice.response;
+package com.springboot.obbm.dto.eventservices.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -10,9 +10,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class EventForEventServicesResponse {
-    Integer eventId;
+public class ServiceForEventServicesResponse {
+    Integer serviceId;
     String name;
-    Double totalcost;
+    String type;
+    Double price;
     String description;
+    Boolean status;
 }
