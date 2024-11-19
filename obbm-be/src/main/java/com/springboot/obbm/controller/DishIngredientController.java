@@ -26,80 +26,80 @@ public class DishIngredientController {
         try {
             int adjustedPage = (page > 0) ? page - 1 : 0;
             return ApiResponse.<PageImpl<DishIngredientResponse>>builder()
-                    .result(dishIngredientService.getAllDishIngredients(adjustedPage, size))
+                    .result(dishIngredientService.getAllDishIngredient(adjustedPage, size))
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-//    @GetMapping("/byEvent")
-//    public ApiResponse<PageImpl<DishIngredientResponse>> getEventServiceByEventId(
-//            @RequestParam int menuId,
-//            @RequestParam(defaultValue = "1") int page,
-//            @RequestParam(defaultValue = "5") int size) {
-//
-//        try {
-//            int adjustedPage = (page > 0) ? page - 1 : 0;
-//            return ApiResponse.<PageImpl<DishIngredientResponse>>builder()
-//                    .result(eventServicesService.getEventServiceByEventId(menuId, adjustedPage, size))
-//                    .build();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    @GetMapping("/byService")
-//    public ApiResponse<PageImpl<DishIngredientResponse>> getEventServiceByServiceId(
-//            @RequestParam int dishId,
-//            @RequestParam(defaultValue = "1") int page,
-//            @RequestParam(defaultValue = "5") int size) {
-//
-//        try {
-//            int adjustedPage = (page > 0) ? page - 1 : 0;
-//            return ApiResponse.<PageImpl<DishIngredientResponse>>builder()
-//                    .result(eventServicesService.getEventServiceByServiceId(dishId, adjustedPage, size))
-//                    .build();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    @GetMapping("/{id}")
-//    ApiResponse<DishIngredientResponse> getEventServiceById(@PathVariable int id) {
-//        return ApiResponse.<DishIngredientResponse>builder()
-//                .result(eventServicesService.getEventServiceById(id))
-//                .build();
-//    }
+    @GetMapping("/byDish")
+    public ApiResponse<PageImpl<DishIngredientResponse>> getDishIngredientByDishId(
+            @RequestParam int menuId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<DishIngredientResponse>>builder()
+                    .result(dishIngredientService.getDishIngredientByDishId(menuId, adjustedPage, size))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/byIngredient")
+    public ApiResponse<PageImpl<DishIngredientResponse>> getDishIngredientByIngredientId(
+            @RequestParam int dishId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<DishIngredientResponse>>builder()
+                    .result(dishIngredientService.getDishIngredientByIngredientId(dishId, adjustedPage, size))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/{id}")
+    ApiResponse<DishIngredientResponse> getDishIngredientById(@PathVariable int id) {
+        return ApiResponse.<DishIngredientResponse>builder()
+                .result(dishIngredientService.getDishIngredientById(id))
+                .build();
+    }
 
     @PostMapping("/saveAllDishIngredient")
-    public ApiResponse<List<DishIngredientResponse>> saveAllEventServices(@RequestBody List<DishIngredientRequest> requestList) {
+    public ApiResponse<List<DishIngredientResponse>> saveAllDishIngredients(@RequestBody List<DishIngredientRequest> requestList) {
         return ApiResponse.<List<DishIngredientResponse>>builder()
                 .result(dishIngredientService.saveAllDishIngredient(requestList))
                 .build();
     }
 
-//    @PostMapping()
-//    public ApiResponse<DishIngredientResponse> createAdminEventService(@RequestBody EventServicesRequest request) {
-//        return ApiResponse.<DishIngredientResponse>builder()
-//                .result(eventServicesService.createEventService(request))
-//                .build();
-//    }
-//
-//
-//    @PutMapping("/{id}")
-//    public ApiResponse<DishIngredientResponse> updateEventService(@PathVariable int id, @RequestBody EventServicesRequest request) {
-//        return ApiResponse.<DishIngredientResponse>builder()
-//                .result(eventServicesService.updateEventService(id, request))
-//                .build();
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public ApiResponse<?> deleteEventService(@PathVariable int id) {
-//        eventServicesService.deleteEventService(id);
-//        return ApiResponse.builder()
-//                .message("Dịch vụ sự kiện đã bị xóa.")
-//                .build();
-//    }
+    @PostMapping()
+    public ApiResponse<DishIngredientResponse> createAdminDishIngredient(@RequestBody DishIngredientRequest request) {
+        return ApiResponse.<DishIngredientResponse>builder()
+                .result(dishIngredientService.createDishIngredient(request))
+                .build();
+    }
+
+
+    @PutMapping("/{id}")
+    public ApiResponse<DishIngredientResponse> updateDishIngredient(@PathVariable int id, @RequestBody DishIngredientRequest request) {
+        return ApiResponse.<DishIngredientResponse>builder()
+                .result(dishIngredientService.updateDishIngredient(id, request))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<?> deleteDishIngredient(@PathVariable int id) {
+        dishIngredientService.deleteDishIngredient(id);
+        return ApiResponse.builder()
+                .message("Nguyên liệu món ăn đã bị xóa.")
+                .build();
+    }
 
 }

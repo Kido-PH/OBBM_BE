@@ -1,7 +1,6 @@
 package com.springboot.obbm.dto.contract.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.springboot.obbm.dto.stockrequest.response.StockrequestResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -32,7 +31,7 @@ public class ContractResponse {
     LocationForContractResponse locations;
     EventForContractResponse events;
     MenuForContractResponse menus;
-    List<StockrequestResponse> listStockrequests;
+    List<StockRequestForContractResponse> listStockrequests;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

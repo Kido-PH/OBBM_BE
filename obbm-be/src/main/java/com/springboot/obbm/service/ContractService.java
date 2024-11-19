@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class ContractService {
     ContractRepository contractRepository;
     LocationRespository locationRespository;
+    StockRequestService stockRequestService;
     EventRepository eventRepository;
     MenuRepository menuRepository;
     UserRepository userRepository;
@@ -111,7 +112,10 @@ public class ContractService {
         contract.setCustmail(user.getEmail());
         contract.setCreatedAt(LocalDateTime.now());
 
-        return contractMapper.toContractResponse(contractRepository.save(contract));
+        Contract savedContract = contractRepository.save(contract);
+        stockRequestService.generateStockRequestsForContract(savedContract);
+
+        return contractMapper.toContractResponse(savedContract);
     }
 
     public ContractResponse updateContract(int id, ContractRequest request) {
@@ -135,7 +139,12 @@ public class ContractService {
         contract.setUpdatedAt(LocalDateTime.now());
 
         contractMapper.updateContract(contract, request);
-        return contractMapper.toContractResponse(contractRepository.save(contract));
+
+
+        Contract savedContract = contractRepository.save(contract);
+        stockRequestService.generateStockRequestsForContract(savedContract);
+
+        return contractMapper.toContractResponse(savedContract);
     }
 
     public void deleteContract(int id) {

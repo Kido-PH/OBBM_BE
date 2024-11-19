@@ -4,13 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.springboot.obbm.util.StringFieldTrimmer;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+
 
 @Data
 @Entity(name = "stockrequest")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "stockrequestId")
 public class StockRequest {
     @Id
@@ -24,10 +29,10 @@ public class StockRequest {
     String approval;
 
     @Column(name = "stockrequest_requestdate")
-    Date requestdate;
+    LocalDateTime requestdate;
 
     @Column(name = "stockrequest_receiveddate ")
-    Date receiveddate ;
+    LocalDateTime receiveddate ;
 
     @Column(name = "stockrequest_status")
     String status;

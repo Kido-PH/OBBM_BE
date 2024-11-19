@@ -51,7 +51,7 @@ public class DishIngredientService {
         return dishIngredientMapper.toDishIngredientResponseList(dishIngredientRepository.saveAll(dishIngredientList));
     }
 
-    public PageImpl<DishIngredientResponse> getAllDishIngredients(int page, int size) {
+    public PageImpl<DishIngredientResponse> getAllDishIngredient(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<DishIngredient> dishIngredientPage = dishIngredientRepository.findAllByDeletedAtIsNull(pageable);
 
@@ -61,62 +61,62 @@ public class DishIngredientService {
         return new PageImpl<>(responseList, pageable, dishIngredientPage.getTotalElements());
     }
 
-//    public DishIngredientResponse getDishIngredientById(int id) {
-//        return dishIngredientMapper.toDishIngredientResponse(dishIngredientRepository.findByDishIngredientIdAndDeletedAtIsNull(id)
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Dịch vụ sự kiện")));
-//    }
-//
-//    public PageImpl<DishIngredientResponse> getDishIngredientByEventId(int menuId, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Page<DishIngredients> DishIngredientPage = dishIngredientRepository.findAllByEvents_EventIdAndDeletedAtIsNull(menuId, pageable);
-//
-//        var responseList = DishIngredientPage.getContent().stream()
-//                .map(dishIngredientMapper::toDishIngredientResponse)
-//                .toList();
-//        return new PageImpl<>(responseList, pageable, DishIngredientPage.getTotalElements());
-//    }
-//
-//    public PageImpl<DishIngredientResponse> getDishIngredientByServiceId(int dishId, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Page<DishIngredients> DishIngredientPage = dishIngredientRepository.findAllByServices_ServiceIdAndDeletedAtIsNull(dishId, pageable);
-//
-//        var responseList = DishIngredientPage.getContent().stream()
-//                .map(dishIngredientMapper::toDishIngredientResponse)
-//                .toList();
-//        return new PageImpl<>(responseList, pageable, DishIngredientPage.getTotalElements());
-//    }
-//
-//    public DishIngredientResponse createDishIngredient(DishIngredientsRequest request) {
-//        Services services = ingredientRepository.findById(request.getServiceId())
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Dịch vụ"));
-//        Event event = dishRepository.findById(request.getEventId())
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
-//        DishIngredients dishIngredients = dishIngredientMapper.toDishIngredient(request);
-//        dishIngredients.setCreatedAt(LocalDateTime.now());
-//        dishIngredients.setEvents(event);
-//        dishIngredients.setServices(services);
-//        return dishIngredientMapper.toDishIngredientResponse(dishIngredientRepository.save(dishIngredients));
-//    }
-//
-//    public DishIngredientResponse updateDishIngredient(int id, DishIngredientsRequest request) {
-//        DishIngredients DishIngredients = dishIngredientRepository.findById(id)
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn"));
-//        Event event = dishRepository.findById(request.getEventId())
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Sự kiện"));
-//        Services services = ingredientRepository.findById(request.getServiceId())
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Dịch vụ"));
-//        DishIngredients.setUpdatedAt(LocalDateTime.now());
-//        DishIngredients.setEvents(event);
-//        DishIngredients.setServices(services);
-//        dishIngredientMapper.updateDishIngredient(DishIngredients, request);
-//        return dishIngredientMapper.toDishIngredientResponse(dishIngredientRepository.save(DishIngredients));
-//    }
-//
-//    public void deleteDishIngredient(int id) {
-//        DishIngredients DishIngredients = dishIngredientRepository.findById(id)
-//                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Thực đơn món ăn"));
-//
-//        DishIngredients.setDeletedAt(LocalDateTime.now());
-//        dishIngredientRepository.save(DishIngredients);
-//    }
+    public DishIngredientResponse getDishIngredientById(int id) {
+        return dishIngredientMapper.toDishIngredientResponse(dishIngredientRepository.findByDishingredientIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Nguyên liệu món ăn")));
+    }
+
+    public PageImpl<DishIngredientResponse> getDishIngredientByDishId(int menuId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<DishIngredient> DishIngredientPage = dishIngredientRepository.findAllByDishes_DishIdAndDeletedAtIsNull(menuId, pageable);
+
+        var responseList = DishIngredientPage.getContent().stream()
+                .map(dishIngredientMapper::toDishIngredientResponse)
+                .toList();
+        return new PageImpl<>(responseList, pageable, DishIngredientPage.getTotalElements());
+    }
+
+    public PageImpl<DishIngredientResponse> getDishIngredientByIngredientId(int dishId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<DishIngredient> DishIngredientPage = dishIngredientRepository.findAllByIngredients_IngredientIdAndDeletedAtIsNull(dishId, pageable);
+
+        var responseList = DishIngredientPage.getContent().stream()
+                .map(dishIngredientMapper::toDishIngredientResponse)
+                .toList();
+        return new PageImpl<>(responseList, pageable, DishIngredientPage.getTotalElements());
+    }
+
+    public DishIngredientResponse createDishIngredient(DishIngredientRequest request) {
+        Ingredient ingredient = ingredientRepository.findById(request.getIngredientId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Nguyên liệu"));
+        Dish dish = dishRepository.findById(request.getDishId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
+        DishIngredient dishIngredient = dishIngredientMapper.toDishIngredient(request);
+        dishIngredient.setCreatedAt(LocalDateTime.now());
+        dishIngredient.setDishes(dish);
+        dishIngredient.setIngredients(ingredient);
+        return dishIngredientMapper.toDishIngredientResponse(dishIngredientRepository.save(dishIngredient));
+    }
+
+    public DishIngredientResponse updateDishIngredient(int id, DishIngredientRequest request) {
+        DishIngredient DishIngredient = dishIngredientRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Nguyên liệu món ăn"));
+        Dish dish = dishRepository.findById(request.getDishId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Món ăn"));
+        Ingredient ingredient = ingredientRepository.findById(request.getIngredientId())
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Nguyên liệu"));
+        DishIngredient.setUpdatedAt(LocalDateTime.now());
+        DishIngredient.setDishes(dish);
+        DishIngredient.setIngredients(ingredient);
+        dishIngredientMapper.updateDishIngredient(DishIngredient, request);
+        return dishIngredientMapper.toDishIngredientResponse(dishIngredientRepository.save(DishIngredient));
+    }
+
+    public void deleteDishIngredient(int id) {
+        DishIngredient DishIngredient = dishIngredientRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Nguyên liệu món ăn"));
+
+        DishIngredient.setDeletedAt(LocalDateTime.now());
+        dishIngredientRepository.save(DishIngredient);
+    }
 }
