@@ -60,9 +60,6 @@ public class User {
     @OneToMany(mappedBy = "users")
     List<Event> listEvent;
 
-    @OneToMany(mappedBy = "users")
-    List<UserGroupPermission> listUserGroupPermissions;
-
     @ManyToMany
     Set<Role> roles;
 

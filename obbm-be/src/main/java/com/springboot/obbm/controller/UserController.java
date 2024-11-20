@@ -33,10 +33,17 @@ public class UserController {
                 .build();
     }
 
-    @PostMapping
+    @PostMapping("/user")
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.createUser(request));
+        return apiResponse;
+    }
+
+    @PostMapping("/staff")
+    ApiResponse<UserResponse> createStaff(@RequestBody @Valid UserCreationRequest request) {
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.createStaff(request));
         return apiResponse;
     }
 

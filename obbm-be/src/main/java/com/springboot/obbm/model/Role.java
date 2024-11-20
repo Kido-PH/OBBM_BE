@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -30,6 +31,9 @@ public class Role {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "roles")
+    List<UserRolePermission> listUserRolePermissions;
 
     @PrePersist
     @PreUpdate

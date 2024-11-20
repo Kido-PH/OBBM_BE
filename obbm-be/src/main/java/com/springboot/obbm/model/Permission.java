@@ -25,7 +25,7 @@ public class Permission {
     PerGroup pergroups;
 
     @OneToMany(mappedBy = "permissions")
-    List<UserGroupPermission> listUGPs;
+    List<UserRolePermission> listUserRolePermissions;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

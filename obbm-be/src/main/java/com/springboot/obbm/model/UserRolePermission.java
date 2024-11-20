@@ -15,23 +15,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "UGPid")
-public class UserGroupPermission {
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "URPid")
+public class UserRolePermission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer UGPid;
+    Integer URPid;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     User users;
 
     @ManyToOne
+    @JoinColumn(name = "role_name")
+    Role roles;
+
+    @ManyToOne
     @JoinColumn(name = "permission_name")
     Permission permissions;
 
-    @ManyToOne
-    @JoinColumn(name = "pergroup_name")
-    PerGroup pergroups;
+    LocalDateTime createdAt;
 
     @PrePersist
     @PreUpdate

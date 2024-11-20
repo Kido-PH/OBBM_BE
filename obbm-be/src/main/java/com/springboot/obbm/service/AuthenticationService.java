@@ -8,9 +8,7 @@ import com.springboot.obbm.dto.request.ExchangeTokenRequest;
 import com.springboot.obbm.dto.request.IntrospectRequest;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
-import com.springboot.obbm.model.InvalidatedToken;
-import com.springboot.obbm.model.Role;
-import com.springboot.obbm.model.User;
+import com.springboot.obbm.model.*;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.respository.InvalidatedTokenRepository;
@@ -20,6 +18,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.springboot.obbm.respository.UserRolePermissionRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,6 +48,7 @@ import java.util.*;
 public class AuthenticationService {
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    UserRolePermissionRepository userRolePermissionRepository;
     OutboundObbmClient outboundObbmClient;
     OutboundUserClient outboundUserClient;
 
@@ -236,6 +236,10 @@ public class AuthenticationService {
     }
 
     public String generateToken(User user, long duration) {
+
+        ensureUserRolePermissionExists(user);
+        String scope = buildScope(user);
+
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
@@ -245,7 +249,7 @@ public class AuthenticationService {
                         Instant.now().plus(duration, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope", buildScope(user)) // Lưu các quyền của người dùng
+                .claim("scope", scope) // Lưu các quyền của người dùng
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -261,19 +265,45 @@ public class AuthenticationService {
     }
 
     private String buildScope(User user) {
-        StringJoiner stringJoiner = new StringJoiner(" ");
+        ensureUserRolePermissionExists(user);
 
-        // Kiểm tra người dùng có roles không, nếu có, thêm từng role vào scope
-        if (!CollectionUtils.isEmpty(user.getRoles())) {
-            user.getRoles().forEach(role -> {
-                stringJoiner.add("ROLE_" + role.getName());
-                if (!CollectionUtils.isEmpty(role.getPermissions())) {
-                    role.getPermissions()
-                            .forEach(permission -> stringJoiner.add(permission.getName()));
-                }
-            });
+        Set<String> scopeSet = new LinkedHashSet<>();
+        List<UserRolePermission> urpList = userRolePermissionRepository.findByUsers(user);
+
+        urpList.forEach(urp -> {
+            scopeSet.add("ROLE_" + urp.getRoles().getName());
+            scopeSet.add(urp.getPermissions().getName());
+        });
+
+        return String.join(" ", scopeSet);
+    }
+
+
+    private void ensureUserRolePermissionExists(User user) {
+        // Kiểm tra xem có bất kỳ dữ liệu nào trong UserRolePermission cho user không
+        boolean hasExistingPermissions = userRolePermissionRepository.existsByUsers(user);
+
+        if (hasExistingPermissions) {
+            // Nếu đã tồn tại dữ liệu, thoát khỏi phương thức
+            return;
         }
-        return stringJoiner.toString();
+
+        // Nếu chưa tồn tại, tiến hành thêm mới
+        Set<Role> userRoles = user.getRoles();
+
+        userRoles.forEach(role -> {
+            List<Permission> permissions = role.getPermissions().stream().toList();
+
+            permissions.forEach(permission -> {
+                UserRolePermission urp = UserRolePermission.builder()
+                        .users(user)
+                        .roles(role)
+                        .permissions(permission)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+                userRolePermissionRepository.save(urp);
+            });
+        });
     }
 
     @Scheduled(cron = "0 0 0 * * ?")  // Clean expired tokens daily

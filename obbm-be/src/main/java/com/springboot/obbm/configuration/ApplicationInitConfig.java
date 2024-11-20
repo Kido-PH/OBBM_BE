@@ -5,6 +5,7 @@ import com.springboot.obbm.model.User;
 import com.springboot.obbm.model.Role;
 import com.springboot.obbm.respository.RoleRepository;
 import com.springboot.obbm.respository.UserRepository;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,12 +14,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.HashSet;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableTransactionManagement
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApplicationInitConfig {
@@ -59,5 +64,10 @@ public class ApplicationInitConfig {
             }
             log.info("Application initialization completed .....");
         };
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+        return new JpaTransactionManager(emf);
     }
 }
