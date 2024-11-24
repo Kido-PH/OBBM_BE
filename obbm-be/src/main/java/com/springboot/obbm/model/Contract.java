@@ -37,6 +37,9 @@ public class Contract {
     @Column(name = "contract_totalcost")
     Double totalcost;
 
+    @Column(name = "contract_prepay")
+    Double prepay;
+
     @Column(name = "contract_status")
     String status;
 

@@ -22,7 +22,6 @@ import org.springframework.web.filter.CorsFilter;
 @EnableMethodSecurity()
 @EnableScheduling
 public class SecurityConfig {
-
     private static final String[] SWAGGER_ENDPOINTS = {
             "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**",
             "/configuration/ui", "/configuration/security", "/webjars/**",
@@ -30,8 +29,9 @@ public class SecurityConfig {
     };
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users", "/auth/token", "/auth/introspect", "/auth/logout"
-            , "/auth/refresh", "/auth/outbound/authentication"
+            "/users", "/auth/token", "/auth/introspect", "/auth/logout",
+            "/auth/refresh", "/auth/outbound/authentication", "/payment/**",
+            "/menu/getAlLMenuAdmin", "/event", "/dish"
     };
 
     @Autowired

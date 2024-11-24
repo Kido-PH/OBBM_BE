@@ -18,6 +18,7 @@ spring:
       enabled: true
       force: true
 
+
 jwt:
   signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
   valid-duration: 1800 # in second
@@ -34,3 +35,10 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
+payos:
+  client-id: "f0ec7a97-606b-4881-bb8e-b31e28ce14bd"
+  api-key: "523dc500-76f4-4ef1-97a3-d759a9bf05da"
+  checksum-key: "58077fc2d772211aaf3c7bb5f765e98207a4cc4518a9972fc2ea454dff8d95ae"
+  base-url: "https://sandbox.payos.com"
+

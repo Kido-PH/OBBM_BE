@@ -22,6 +22,7 @@ public class ContractResponse {
     double totalcost;
     String status;
     String paymentstatus;
+    Double prepay;
     LocalDateTime organizdate;
     String description;
     String custname;
