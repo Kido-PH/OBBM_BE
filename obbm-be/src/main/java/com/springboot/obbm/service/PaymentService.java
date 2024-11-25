@@ -2,12 +2,15 @@ package com.springboot.obbm.service;
 
 import com.springboot.obbm.dto.payment.request.CreatePaymentLinkRequest;
 import com.springboot.obbm.dto.payment.response.PaymentLinkResponse;
+import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.model.Contract;
 import com.springboot.obbm.respository.ContractRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.payos.PayOS;
@@ -28,9 +31,16 @@ public class PaymentService {
     PayOS payOS;
     ContractRepository contractRepository;
 
+    @NonFinal
+    @Value("${payos.success-url}")
+    protected String successUrl;
+
+    @NonFinal
+    @Value("${payos.cancel-url}")
+    protected String cancelUrl;
+
     public PaymentLinkResponse createPaymentLink(CreatePaymentLinkRequest request) {
         try {
-            // Sinh mã đơn hàng
             String currentTimeString = String.valueOf(new Date().getTime());
             long orderCode = Long.parseLong(currentTimeString.substring(currentTimeString.length() - 6));
 
@@ -46,8 +56,8 @@ public class PaymentService {
                     .orderCode(orderCode)
                     .amount(pricePrePay)
                     .description(request.getDescription())
-                    .returnUrl(request.getReturnUrl() + "?contractId=" + request.getContractId() + "&amountPaid=" + pricePrePay)
-                    .cancelUrl(request.getCancelUrl())
+                    .returnUrl(successUrl + "?contractId=" + request.getContractId() + "&amountPaid=" + pricePrePay)
+                    .cancelUrl(cancelUrl)
                     .item(item)
                     .build();
 
@@ -60,17 +70,15 @@ public class PaymentService {
     }
 
     public void handlePaymentWebhook(Map<String, Object> payload) {
-        String status = (String) payload.get("status");
-        String orderCode = (String) payload.get("orderCode");
-        int amount = (int) payload.get("amount");
-        Integer contractId = (Integer) payload.get("contractId");
-
         try {
-            if ("success".equalsIgnoreCase(status)) {
+            String status = (String) payload.get("status");
+            Integer contractId = (Integer) payload.get("contractId");
+            int amountPaid = (int) payload.get("amount");
 
-                updateContractStatus(contractId, amount);
+            if ("success".equalsIgnoreCase(status)) {
+                updateContractStatus(contractId, amountPaid);
             } else if ("cancel".equalsIgnoreCase(status)) {
-                log.info("Payment cancelled for order: {}", orderCode);
+                log.info("Payment cancelled for contract: {}", contractId);
             } else {
                 log.info("Unhandled payment status: {}", status);
             }
@@ -99,14 +107,31 @@ public class PaymentService {
             contract.setPaymentstatus(payStatus);
             contract.setPrepay(amountPaid * 1.0);
 
-            log.info("Updating contract {} with totalcost: {} and paymentstatus: {}",
-                    contractId, amountPaid, contract.getPaymentstatus());
-
             contractRepository.save(contract);
-            log.info("Contract {} updated with payment status {}", contractId, contract.getPaymentstatus());
         } else {
             log.error("Contract not found for ID {}", contractId);
         }
     }
+
+/*
+//    @Transactional(readOnly = true)
+//    public ApiResponse<String> getContractStatusResponse(Integer contractId) {
+//        Optional<Contract> contractOpt = contractRepository.findById(contractId);
+//        if (contractOpt.isPresent()) {
+//            Contract contract = contractOpt.get();
+//            return ApiResponse.<String>builder()
+//                    .code(200)
+//                    .message("Thanh toán thành công!")
+//                    .result("Hợp đồng " + contractId + " có trạng thái: " + contract.getPaymentstatus())
+//                    .build();
+//        } else {
+//            return ApiResponse.<String>builder()
+//                    .code(404)
+//                    .message("Hợp đồng không tồn tại.")
+//                    .result("failed")
+//                    .build();
+//        }
+//    }
+*/
 
 }

@@ -14,26 +14,29 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentCallbackController {
     PaymentService paymentService;
 
+//    @GetMapping("/success")
+//    public ApiResponse<String> paymentSuccess(@RequestParam Integer contractId) {
+//        return paymentService.getContractStatusResponse(contractId);
+//    }
+
     @GetMapping("/success")
     public ApiResponse<String> paymentSuccess(@RequestParam Integer contractId, @RequestParam Integer amountPaid) {
-        System.out.println("Payment was successful! ContractId: " + contractId + ", Amount Paid: " + amountPaid);
         paymentService.updateContractStatus(contractId, amountPaid);
 
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .code(200)
-                .message("Payment was successful!")
+                .message("Thanh toán thành công!")
                 .result("success")
                 .build();
         return response;
     }
 
+
     @GetMapping("/cancel")
     public ApiResponse<String> paymentCancel() {
-        System.out.println("Payment was canceled.");
-
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .code(400)
-                .message("Payment was canceled.")
+                .message("Thanh toán đã bị hủy.")
                 .result("cancel")
                 .build();
         return response;

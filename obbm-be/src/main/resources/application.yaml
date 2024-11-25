@@ -41,4 +41,5 @@ payos:
   api-key: "523dc500-76f4-4ef1-97a3-d759a9bf05da"
   checksum-key: "58077fc2d772211aaf3c7bb5f765e98207a4cc4518a9972fc2ea454dff8d95ae"
   base-url: "https://sandbox.payos.com"
-
+  success-url: "http://localhost:8080/obbm/payment/success"
+  cancel-url: "http://localhost:8080/obbm/payment/cancel"

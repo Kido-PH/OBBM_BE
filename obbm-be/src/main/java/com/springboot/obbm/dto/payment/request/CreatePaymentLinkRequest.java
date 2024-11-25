@@ -13,6 +13,4 @@ public class CreatePaymentLinkRequest {
     String productName;
     String description;
     Double prepay;
-    String returnUrl;
-    String cancelUrl;
 }
