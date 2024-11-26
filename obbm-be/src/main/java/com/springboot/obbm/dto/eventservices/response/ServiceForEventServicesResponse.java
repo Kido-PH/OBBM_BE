@@ -15,6 +15,7 @@ public class ServiceForEventServicesResponse {
     String name;
     String type;
     Double price;
+    String image;
     String description;
     Boolean status;
 }

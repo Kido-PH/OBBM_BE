@@ -15,4 +15,5 @@ public class EventForEventServicesResponse {
     String name;
     Double totalcost;
     String description;
+    String image;
 }
