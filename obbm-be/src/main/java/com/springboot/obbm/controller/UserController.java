@@ -1,9 +1,7 @@
 package com.springboot.obbm.controller;
 
-import com.springboot.obbm.dto.user.request.UserCreateUserRequest;
+import com.springboot.obbm.dto.user.request.*;
 import com.springboot.obbm.dto.response.ApiResponse;
-import com.springboot.obbm.dto.user.request.PasswordCreateRequest;
-import com.springboot.obbm.dto.user.request.UserUpdateUserRequest;
 import com.springboot.obbm.dto.user.response.UserResponse;
 import com.springboot.obbm.service.UserService;
 import jakarta.validation.Valid;
@@ -45,12 +43,17 @@ public class UserController {
         return userService.updateUser(userId, request);
     }
 
-//    @PostMapping("/staff")
-//    ApiResponse<UserResponse> createStaff(@RequestBody @Valid UserCreateUserRequest request) {
-//        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
-//        apiResponse.setResult(userService.createStaff(request));
-//        return apiResponse;
-//    }
+    @PostMapping("/userForAdmin")
+    ApiResponse<UserResponse> createStaff(@RequestBody @Valid UserForAdminRequest request) {
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.createUserForAdmin(request));
+        return apiResponse;
+    }
+
+    @PutMapping("/userForAdmin/{userId}")
+    UserResponse updateUser(@PathVariable String userId, @RequestBody UserUpdaterForAdminRequest request) {
+        return userService.updateUserForAdmin(userId, request);
+    }
 
     @GetMapping
     ApiResponse<List<UserResponse>> getAllUsers() {
@@ -79,6 +82,6 @@ public class UserController {
     @DeleteMapping("/{userId}")
     String deleteUser(@PathVariable String userId) {
         userService.deleteUser(userId);
-        return "User has been deleted";
+        return "Người dùng đã bị xóa";
     }
 }

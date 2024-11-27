@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserCreateStaffRequest {
+public class UserForAdminRequest {
     @Size(min = 3, message = "USERNAME_INVALID")
     @NonNull
     String username;

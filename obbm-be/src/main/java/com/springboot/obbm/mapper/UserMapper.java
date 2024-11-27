@@ -1,10 +1,10 @@
 package com.springboot.obbm.mapper;
 
-import com.springboot.obbm.dto.user.request.UserCreateStaffRequest;
+import com.springboot.obbm.dto.user.request.UserForAdminRequest;
 import com.springboot.obbm.dto.user.request.UserCreateUserRequest;
 import com.springboot.obbm.dto.response.PermissionResponse;
-import com.springboot.obbm.dto.user.request.UserUpdateStaffRequest;
 import com.springboot.obbm.dto.user.request.UserUpdateUserRequest;
+import com.springboot.obbm.dto.user.request.UserUpdaterForAdminRequest;
 import com.springboot.obbm.dto.user.response.RoleForUserResponse;
 import com.springboot.obbm.dto.user.response.UserResponse;
 import com.springboot.obbm.model.*;
@@ -25,15 +25,15 @@ public interface UserMapper {
     User toUser(UserCreateUserRequest request);
 
     @Mapping(target = "roles", ignore = true)
-    User toStaff(UserCreateStaffRequest request);
+    User toUserForAdmin(UserForAdminRequest request);
 
     UserResponse toUserResponse(User user);
 
     @Mapping(target = "roles", ignore = true)
-    void upadteUser(@MappingTarget User user, UserUpdateUserRequest request);
+    void upadateUser(@MappingTarget User user, UserUpdateUserRequest request);
 
     @Mapping(target = "roles", ignore = true)
-    void upadteStaff(@MappingTarget User user, UserUpdateStaffRequest request);
+    void updateForAdmin(@MappingTarget User user, UserUpdaterForAdminRequest request);
 
     default UserResponse toUserResponseRole(User user, List<UserRolePermission> urpList) {
         return UserResponse.builder()
