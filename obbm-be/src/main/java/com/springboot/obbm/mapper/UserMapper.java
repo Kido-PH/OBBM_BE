@@ -1,12 +1,12 @@
 package com.springboot.obbm.mapper;
 
-import com.springboot.obbm.dto.menu.response.MenuResponse;
-import com.springboot.obbm.dto.request.PermissionRequest;
-import com.springboot.obbm.dto.request.UserUpdateRequest;
+import com.springboot.obbm.dto.user.request.UserCreateStaffRequest;
+import com.springboot.obbm.dto.user.request.UserCreateUserRequest;
 import com.springboot.obbm.dto.response.PermissionResponse;
+import com.springboot.obbm.dto.user.request.UserUpdateStaffRequest;
+import com.springboot.obbm.dto.user.request.UserUpdateUserRequest;
 import com.springboot.obbm.dto.user.response.RoleForUserResponse;
 import com.springboot.obbm.dto.user.response.UserResponse;
-import com.springboot.obbm.dto.request.UserCreationRequest;
 import com.springboot.obbm.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,12 +22,18 @@ import java.util.stream.Collectors;
 public interface UserMapper {
 
     @Mapping(target = "roles", ignore = true)
-    User toUser(UserCreationRequest request);
+    User toUser(UserCreateUserRequest request);
+
+    @Mapping(target = "roles", ignore = true)
+    User toStaff(UserCreateStaffRequest request);
 
     UserResponse toUserResponse(User user);
 
     @Mapping(target = "roles", ignore = true)
-    void upadteUser(@MappingTarget User user, UserUpdateRequest request);
+    void upadteUser(@MappingTarget User user, UserUpdateUserRequest request);
+
+    @Mapping(target = "roles", ignore = true)
+    void upadteStaff(@MappingTarget User user, UserUpdateStaffRequest request);
 
     default UserResponse toUserResponseRole(User user, List<UserRolePermission> urpList) {
         return UserResponse.builder()
@@ -40,7 +46,7 @@ public interface UserMapper {
                 .image(user.getImage())
                 .citizenIdentity(user.getCitizenIdentity())
                 .noPassword(!StringUtils.hasText(user.getPassword()))
-                .roles(mapRolesFromUrp(urpList)) // Chuyển đổi từ UserRolePermission
+                .roles(mapRolesFromUrp(urpList))
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

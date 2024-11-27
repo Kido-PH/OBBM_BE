@@ -236,7 +236,6 @@ public class AuthenticationService {
     }
 
     public String generateToken(User user, long duration) {
-
         ensureUserRolePermissionExists(user);
         String scope = buildScope(user);
 
@@ -280,8 +279,7 @@ public class AuthenticationService {
 
 
     private void ensureUserRolePermissionExists(User user) {
-        // Kiểm tra xem có bất kỳ dữ liệu nào trong UserRolePermission cho user không
-        boolean hasExistingPermissions = userRolePermissionRepository.existsByUsers(user);
+        boolean hasExistingPermissions = userRolePermissionRepository.existsByUsers_UserId(user.getUserId());
 
         if (hasExistingPermissions) {
             // Nếu đã tồn tại dữ liệu, thoát khỏi phương thức

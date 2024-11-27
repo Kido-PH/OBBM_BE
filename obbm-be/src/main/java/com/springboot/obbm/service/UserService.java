@@ -1,16 +1,16 @@
 package com.springboot.obbm.service;
 
 import com.springboot.obbm.constant.PredefinedRole;
-import com.springboot.obbm.dto.request.UserCreationRequest;
-import com.springboot.obbm.dto.request.UserUpdateRequest;
+import com.springboot.obbm.dto.dish.request.DishRequest;
+import com.springboot.obbm.dto.dish.response.DishResponse;
+import com.springboot.obbm.dto.user.request.UserCreateUserRequest;
 import com.springboot.obbm.dto.user.request.PasswordCreateRequest;
+import com.springboot.obbm.dto.user.request.UserUpdateUserRequest;
 import com.springboot.obbm.dto.user.response.UserResponse;
-import com.springboot.obbm.model.Role;
-import com.springboot.obbm.model.User;
+import com.springboot.obbm.model.*;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.mapper.UserMapper;
-import com.springboot.obbm.model.UserRolePermission;
 import com.springboot.obbm.respository.RoleRepository;
 import com.springboot.obbm.respository.UserRepository;
 import com.springboot.obbm.respository.UserRolePermissionRepository;
@@ -26,10 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,25 +41,25 @@ public class UserService {
     UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse createStaff(UserCreationRequest request) {
-        User user = userMapper.toUser(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
+//    public UserResponse createStaff(UserCreateUserRequest request) {
+//        User user = userMapper.toUser(request);
+//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+//        user.setCreatedAt(LocalDateTime.now());
+//
+//        Role staffRole = roleRepository.findById(PredefinedRole.STAFF_ROLE).orElseThrow(
+//                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Quyền"));
+//        user.setRoles(Set.of(staffRole));
+//
+//        userRepository.save(user);
+//        List<UserRolePermission> urpList = createUserRolePermissions(user, staffRole);
+//
+//        userRolePermissionRepository.saveAll(urpList);
+//        List<UserRolePermission> persistedUrpList = userRolePermissionRepository.findByUsers(user);
+//
+//        return userMapper.toUserResponseRole(user, persistedUrpList);
+//    }
 
-        Role staffRole = roleRepository.findById(PredefinedRole.STAFF_ROLE).orElseThrow(
-                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Quyền"));
-        user.setRoles(Set.of(staffRole));
-
-        userRepository.save(user);
-        List<UserRolePermission> urpList = createUserRolePermissions(user, staffRole);
-
-        userRolePermissionRepository.saveAll(urpList);
-        List<UserRolePermission> persistedUrpList = userRolePermissionRepository.findByUsers(user);
-
-        return userMapper.toUserResponseRole(user, persistedUrpList);
-    }
-
-    public UserResponse createUser(UserCreationRequest request) {
+    public UserResponse createUser(UserCreateUserRequest request) {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
@@ -79,6 +77,29 @@ public class UserService {
         return userMapper.toUserResponseRole(user, persistedUrpList);
     }
 
+//    public UserResponse updateUser(String userID, UserUpdateUserRequest request) {
+//        User user = userRepository.findById(userID).orElseThrow(
+//                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+//        userMapper.upadteUser(user, request);
+//
+//        Role userRole = roleRepository.findById(PredefinedRole.USER_ROLE).orElseThrow(
+//                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Quyền"));
+//        user.setRoles(Set.of(userRole));
+//
+//        List<UserRolePermission> urpListRole = userRolePermissionRepository.findByUsers(user);
+//        userRepository.save(user);
+//        return userMapper.toUserResponseRole(user, urpListRole);
+//    }
+
+    public UserResponse updateUser(String userID, UserUpdateUserRequest request){
+        User user = userRepository.findById(userID).orElseThrow(
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+        userMapper.upadteUser(user, request);
+        user.setCreatedAt(LocalDateTime.now());
+        userMapper.upadteUser(user, request);
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
     public void createPassword(PasswordCreateRequest request){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -93,21 +114,24 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserResponse updateUser(String userID, UserUpdateRequest request) {
-        User user = userRepository.findById(userID).orElseThrow(
-                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
-        userMapper.upadteUser(user, request);
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+//    public UserResponse updateStaff(String userID, UserUpdateStaffRequest request) {
+//        User user = userRepository.findById(userID).orElseThrow(
+//                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+//        userMapper.upadteUser(user, request);
+//
+//        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+//
+//        var roles = roleRepository.findAllById(request.getRoles());
+//        user.setRoles(new HashSet<>(roles));
+//
+//        List<UserRolePermission> urpListRole = userRolePermissionRepository.findByUsers(user);
+//
+//        return userMapper.toUserResponseRole(user, urpListRole);
+//    }
 
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
 
-        List<UserRolePermission> urpListRole = userRolePermissionRepository.findByUsers(user);
-
-        return userMapper.toUserResponseRole(user, urpListRole);
-    }
 
     public void deleteUser(String userID) {
         userRepository.deleteById(userID);

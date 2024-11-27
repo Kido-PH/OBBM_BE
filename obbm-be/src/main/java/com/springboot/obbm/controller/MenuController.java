@@ -32,7 +32,7 @@ public class MenuController {
         }
     }
 
-    @GetMapping("/getAlLMenuUser")
+    @GetMapping("/getAllMenuUser")
     ApiResponse<PageImpl<MenuResponse>> getAllUserMenus(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {
@@ -46,7 +46,7 @@ public class MenuController {
         }
     }
 
-    @GetMapping("/getAlLMenuAdmin")
+    @GetMapping("/getAllMenuAdmin")
     ApiResponse<PageImpl<MenuResponse>> getAllAdminOrUserMenus(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size) {

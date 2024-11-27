@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface UserRolePermissionRepository extends JpaRepository<UserRolePermission, Integer> {
-    boolean existsByUsers(User user);
+    boolean existsByUsers_UserId(String userId);
 
     List<UserRolePermission> findByUsers(User users);
 

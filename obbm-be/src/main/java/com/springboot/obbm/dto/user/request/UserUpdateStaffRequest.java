@@ -1,4 +1,4 @@
-package com.springboot.obbm.dto.request;
+package com.springboot.obbm.dto.user.request;
 
 import com.springboot.obbm.validator.dob.DobConstraint;
 import lombok.*;
@@ -12,10 +12,16 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
+public class UserUpdateStaffRequest {
     String password;
     String fullname;
-    @DobConstraint(min = 18, message = "INVALID_DOB")
+    String residence;
+    Boolean gender;
+    String email;
+    String phone;
+    String image;
+    String citizenIdentity;
+    @DobConstraint(min = 16, message = "INVALID_DOB")
     LocalDate dob;
     List<String> roles;
 }

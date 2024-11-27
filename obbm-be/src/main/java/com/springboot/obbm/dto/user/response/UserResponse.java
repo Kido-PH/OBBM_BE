@@ -1,7 +1,6 @@
 package com.springboot.obbm.dto.user.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.springboot.obbm.dto.response.RoleResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,10 +13,13 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
     String userId;
     String username;
     String fullname;
+    Boolean gender;
+    String residence;
     LocalDate dob;
     String email;
     String phone;

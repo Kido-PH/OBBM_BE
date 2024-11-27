@@ -110,6 +110,7 @@ public class ContractService {
         contract.setCustname(request.getCustname());
         contract.setCustphone(request.getCustphone());
         contract.setCustmail(user.getEmail());
+        contract.setPrepay(0.0);
         contract.setCreatedAt(LocalDateTime.now());
 
         Contract savedContract = contractRepository.save(contract);

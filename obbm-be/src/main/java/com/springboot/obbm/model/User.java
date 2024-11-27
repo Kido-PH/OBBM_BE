@@ -33,6 +33,12 @@ public class User {
     @Column(name = "user_fullname")
     String fullname;
 
+    @Column(name = "user_gender")
+    Boolean gender;
+
+    @Column(name = "user_residence")
+    String residence;
+
     @Column(name = "user_email")
     String email;
 
@@ -69,7 +75,7 @@ public class User {
 
     @PrePersist
     @PreUpdate
-    public void trimFields(){
+    public void trimFields() {
         StringFieldTrimmer.trimAndNormalizeStringFields(this);
     }
 }

@@ -1,9 +1,9 @@
 package com.springboot.obbm.controller;
 
-import com.springboot.obbm.dto.request.UserCreationRequest;
-import com.springboot.obbm.dto.request.UserUpdateRequest;
+import com.springboot.obbm.dto.user.request.UserCreateUserRequest;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.dto.user.request.PasswordCreateRequest;
+import com.springboot.obbm.dto.user.request.UserUpdateUserRequest;
 import com.springboot.obbm.dto.user.response.UserResponse;
 import com.springboot.obbm.service.UserService;
 import jakarta.validation.Valid;
@@ -34,18 +34,23 @@ public class UserController {
     }
 
     @PostMapping("/user")
-    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
+    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreateUserRequest request) {
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.createUser(request));
         return apiResponse;
     }
 
-    @PostMapping("/staff")
-    ApiResponse<UserResponse> createStaff(@RequestBody @Valid UserCreationRequest request) {
-        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.createStaff(request));
-        return apiResponse;
+    @PutMapping("/user/{userId}")
+    UserResponse updateUser(@PathVariable String userId, @RequestBody UserUpdateUserRequest request) {
+        return userService.updateUser(userId, request);
     }
+
+//    @PostMapping("/staff")
+//    ApiResponse<UserResponse> createStaff(@RequestBody @Valid UserCreateUserRequest request) {
+//        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+//        apiResponse.setResult(userService.createStaff(request));
+//        return apiResponse;
+//    }
 
     @GetMapping
     ApiResponse<List<UserResponse>> getAllUsers() {
@@ -71,13 +76,8 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/{userId}")
-    UserResponse updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
-        return userService.updateUser(userId, request);
-    }
-
     @DeleteMapping("/{userId}")
-    String updateUser(@PathVariable String userId) {
+    String deleteUser(@PathVariable String userId) {
         userService.deleteUser(userId);
         return "User has been deleted";
     }
