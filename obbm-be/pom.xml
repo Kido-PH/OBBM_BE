@@ -88,6 +88,11 @@
 			<artifactId>payos-java</artifactId>
 			<version>1.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http45</artifactId>
+			<version>1.39.0</version>
+		</dependency>
     </dependencies>
 	<dependencyManagement>
 		<dependencies>

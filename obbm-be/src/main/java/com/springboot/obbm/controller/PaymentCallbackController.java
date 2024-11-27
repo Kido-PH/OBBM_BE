@@ -1,44 +1,65 @@
 package com.springboot.obbm.controller;
 
-import com.springboot.obbm.dto.response.ApiResponse;
+import java.io.IOException;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.springboot.obbm.service.PaymentService;
+
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/payment")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentCallbackController {
+
     PaymentService paymentService;
 
-//    @GetMapping("/success")
+/*//    @GetMapping("/success")
 //    public ApiResponse<String> paymentSuccess(@RequestParam Integer contractId) {
 //        return paymentService.getContractStatusResponse(contractId);
-//    }
+//    }*/
 
     @GetMapping("/success")
-    public ApiResponse<String> paymentSuccess(@RequestParam Integer contractId, @RequestParam Integer amountPaid) {
+    public void paymentSuccess(@RequestParam Integer contractId, @RequestParam Integer amountPaid,
+                               @RequestParam String code,
+                               @RequestParam String id,
+                               @RequestParam String cancel,
+                               @RequestParam String status,
+                               @RequestParam String orderCode,
+                               HttpServletResponse response) throws IOException {
         paymentService.updateContractStatus(contractId, amountPaid);
 
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .code(200)
-                .message("Thanh toán thành công!")
-                .result("success")
-                .build();
-        return response;
+        String redirectUrl = String.format("http://localhost:3000/obbm/payment/status?code=%s&id=%s&cancel=%s&status=%s&orderCode=%s",
+                code, id, cancel, status, orderCode);
+
+        // Redirect về FE
+        response.sendRedirect(redirectUrl);
     }
 
-
     @GetMapping("/cancel")
-    public ApiResponse<String> paymentCancel() {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .code(400)
-                .message("Thanh toán đã bị hủy.")
-                .result("cancel")
-                .build();
-        return response;
+    public void paymentCancel(
+            @RequestParam String code,
+            @RequestParam String id,
+            @RequestParam String cancel,
+            @RequestParam String status,
+            @RequestParam String orderCode,
+            HttpServletResponse response) throws IOException {
+
+        // Xây dựng URL frontend với các tham số
+        String redirectUrl = String.format(
+                "http://localhost:3000/obbm/payment/status?code=%s&id=%s&cancel=%s&status=%s&orderCode=%s",
+                code, id, cancel, status, orderCode
+        );
+
+        // Thực hiện redirect
+        response.sendRedirect(redirectUrl);
     }
 }

@@ -96,16 +96,18 @@ public class PaymentService {
             double deposit = (amountPaid * 100) / contract.getTotalcost();
             String payStatus = "Unpaid";
 
-            if(deposit < 50){
+            var totalPay = amountPaid * 1.0 + contract.getPrepay();
+
+            if(totalPay < 50){
                 payStatus = "Unpaid";
-            } else if (deposit <100) {
+            } else if (totalPay <100) {
                 payStatus = "Prepay " + ((int) deposit) + "%";
-            } else if (deposit >= 100){
+            } else if (totalPay >= 100){
                 payStatus = "Paid";
             }
 
             contract.setPaymentstatus(payStatus);
-            contract.setPrepay(amountPaid * 1.0);
+            contract.setPrepay(totalPay);
 
             contractRepository.save(contract);
         } else {
