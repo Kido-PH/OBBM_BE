@@ -154,10 +154,12 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_USER));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
-        if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (!authenticated) {
+            throw new AppException(ErrorCode.INVALID_USER);
+        }
 
         var accessToken = generateAccessToken(user);
         var refreshToken = generateRefreshToken(user);

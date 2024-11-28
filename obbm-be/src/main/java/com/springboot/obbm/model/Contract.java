@@ -80,6 +80,9 @@ public class Contract {
     @OneToMany(mappedBy = "contracts")
     List<StockRequest> listStockrequests;
 
+    @OneToMany(mappedBy = "contract")
+    List<PaymentHistory> listPaymentHistories;
+
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;

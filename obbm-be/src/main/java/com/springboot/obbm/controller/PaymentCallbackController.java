@@ -1,11 +1,11 @@
 package com.springboot.obbm.controller;
 
-import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.service.PaymentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequestMapping("/payment")
@@ -15,25 +15,25 @@ public class PaymentCallbackController {
     PaymentService paymentService;
 
     @GetMapping("/success")
-    public ApiResponse<String> paymentSuccess(@RequestParam Integer contractId, @RequestParam Integer amountPaid) {
-        paymentService.updateContractStatus(contractId, amountPaid);
+    public RedirectView paymentSuccess(@RequestParam Integer contractId,
+                                       @RequestParam Integer amountPaid,
+                                       @RequestParam String status,
+                                       @RequestParam Long orderCode) {
+        paymentService.updateContractStatus(contractId, amountPaid, orderCode);
 
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .code(200)
-                .message("Thanh toán thành công!")
-                .result("success")
-                .build();
-        return response;
+        String clientRedirectUrl = String.format(
+                "http://localhost:3000/payment/success?status=%s", status
+        );
+
+        return new RedirectView(clientRedirectUrl);
     }
 
-
     @GetMapping("/cancel")
-    public ApiResponse<String> paymentCancel() {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .code(400)
-                .message("Thanh toán đã bị hủy.")
-                .result("cancel")
-                .build();
-        return response;
+    public RedirectView paymentCancel(@RequestParam String status) {
+        String clientRedirectUrl = String.format(
+                "http://localhost:3000/payment/cancle?status=%s", status
+        );
+
+        return new RedirectView(clientRedirectUrl);
     }
 }

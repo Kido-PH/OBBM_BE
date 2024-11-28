@@ -4,7 +4,9 @@ import com.springboot.obbm.dto.payment.request.CreatePaymentLinkRequest;
 import com.springboot.obbm.dto.payment.response.PaymentLinkResponse;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.model.Contract;
+import com.springboot.obbm.model.PaymentHistory;
 import com.springboot.obbm.respository.ContractRepository;
+import com.springboot.obbm.respository.PaymentHistoryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,12 +14,14 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +34,7 @@ import java.util.Optional;
 public class PaymentService {
     PayOS payOS;
     ContractRepository contractRepository;
+    PaymentHistoryRepository paymentHistoryRepository;
 
     @NonFinal
     @Value("${payos.success-url}")
@@ -74,69 +79,67 @@ public class PaymentService {
             String status = (String) payload.get("status");
             Integer contractId = (Integer) payload.get("contractId");
             int amountPaid = (int) payload.get("amount");
+            Long orderCode = Long.valueOf(payload.get("orderCode").toString());
 
             if ("success".equalsIgnoreCase(status)) {
-                updateContractStatus(contractId, amountPaid);
-                log.info("Success: {}", contractId);
+                updateContractStatus(contractId, amountPaid, orderCode);
+                log.info("Payment successful for contract ID {}", contractId);
             } else if ("cancel".equalsIgnoreCase(status)) {
-                log.info("Payment cancelled for contract: {}", contractId);
+                log.info("Payment cancelled for contract ID {}", contractId);
             } else {
-                log.info("Unhandled payment status: {}", status);
+                log.warn("Unhandled payment status: {}", status);
             }
         } catch (Exception e) {
             log.error("Error handling payment webhook", e);
         }
     }
 
-    @Transactional
-    public void updateContractStatus(Integer contractId, Integer amountPaid) {
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public void updateContractStatus(Integer contractId, Integer amountPaid, Long orderCode) {
         Optional<Contract> contractOpt = contractRepository.findById(contractId);
-        if (contractOpt.isPresent()) {
-            Contract contract = contractOpt.get();
-
-            var totalPay = amountPaid + contract.getPrepay();
-
-            log.info("TotalPay: {}", totalPay);
-
-            double deposit = (totalPay * 100) / contract.getTotalcost();
-            String payStatus = "Unpaid";
-
-            if(deposit < 50){
-                payStatus = "Unpaid";
-            } else if (deposit <100) {
-                payStatus = "Prepay " + ((int) deposit) + "%";
-            } else if (deposit >= 100){
-                payStatus = "Paid";
-            }
-
-            contract.setPaymentstatus(payStatus);
-            contract.setPrepay(totalPay);
-
-            contractRepository.save(contract);
-        } else {
+        if (contractOpt.isEmpty()) {
             log.error("Contract not found for ID {}", contractId);
+            return;
         }
+        Contract contract = contractOpt.get();
+
+        if (paymentHistoryRepository.existsByOrderCode(orderCode)) {
+            log.warn("Duplicate orderCode detected: {}", orderCode);
+            return;
+        }
+
+        double currentTotalPaid = paymentHistoryRepository
+                .findTotalPaidByContract_ContractId(contractId)
+                .orElse(0.0);
+
+        double newTotalPaid = currentTotalPaid + amountPaid;
+
+        if (newTotalPaid > contract.getTotalcost()) {
+            log.error("Payment exceeds total contract cost for contract ID {}", contractId);
+            return;
+        }
+
+        double depositPercentage = (newTotalPaid * 100.0) / contract.getTotalcost();
+        String payStatus;
+        if (depositPercentage < 50) {
+            payStatus = "Unpaid";
+        } else if (depositPercentage < 100) {
+            payStatus = "Prepay " + ((int) depositPercentage) + "%";
+        } else {
+            payStatus = "Paid";
+        }
+
+        contract.setPaymentstatus(payStatus);
+        contract.setPrepay(newTotalPaid);
+        contractRepository.save(contract);
+
+        PaymentHistory paymentHistory = new PaymentHistory();
+        paymentHistory.setContract(contract);
+        paymentHistory.setAmountPaid(amountPaid);
+        paymentHistory.setOrderCode(orderCode); // Lưu orderCode
+        paymentHistory.setCreatedAt(LocalDateTime.now());
+        paymentHistoryRepository.save(paymentHistory);
+
+        log.info("Updated contract ID {}: Payment status {}, New Total Paid {}", contractId, payStatus, newTotalPaid);
     }
-
-/*
-//    @Transactional(readOnly = true)
-//    public ApiResponse<String> getContractStatusResponse(Integer contractId) {
-//        Optional<Contract> contractOpt = contractRepository.findById(contractId);
-//        if (contractOpt.isPresent()) {
-//            Contract contract = contractOpt.get();
-//            return ApiResponse.<String>builder()
-//                    .code(200)
-//                    .message("Thanh toán thành công!")
-//                    .result("Hợp đồng " + contractId + " có trạng thái: " + contract.getPaymentstatus())
-//                    .build();
-//        } else {
-//            return ApiResponse.<String>builder()
-//                    .code(404)
-//                    .message("Hợp đồng không tồn tại.")
-//                    .result("failed")
-//                    .build();
-//        }
-//    }
-*/
-
 }

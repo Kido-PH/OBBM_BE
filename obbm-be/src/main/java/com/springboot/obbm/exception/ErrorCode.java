@@ -31,7 +31,8 @@ public enum ErrorCode {
     PRICE_NOT_VALID(1019, "{field} phải là số dương theo bội số của 1.000 đồng!", HttpStatus.BAD_REQUEST),
     DUPLICATE_ENTRY(1019, "Dữ liệu đã bị trùng lập!", HttpStatus.BAD_REQUEST),
     PASSWORD_EXISTED(1020, "Mật khẩu đã được tạo trước đó", HttpStatus.BAD_REQUEST),
-    MENUDISH_NOT_EXISTED(1020, "Menu không hợp lệ hoặc không có món ăn.", HttpStatus.BAD_REQUEST),
+    MENUDISH_NOT_EXISTED(1021, "Menu không hợp lệ hoặc không có món ăn.", HttpStatus.BAD_REQUEST),
+    INVALID_USER(1022, "Tài khoản hoặc mật khẩu không chính xác.", HttpStatus.UNAUTHORIZED),
     ;
 
     int code;
