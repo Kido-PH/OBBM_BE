@@ -1,6 +1,7 @@
 package com.springboot.obbm.controller;
 
 import com.springboot.obbm.dto.contract.request.ContractRequest;
+import com.springboot.obbm.dto.contract.request.ContractUpdateTotalCostRequest;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.service.ContractService;
@@ -74,6 +75,14 @@ public class ContractController {
     ApiResponse<ContractResponse> updateContract(@PathVariable int id, @RequestBody ContractRequest request) {
         return ApiResponse.<ContractResponse>builder()
                 .result(contractService.updateContract(id, request))
+                .build();
+    }
+
+
+    @PutMapping("/totalCost/{id}")
+    ApiResponse<ContractResponse> updateTotalCostContract(@PathVariable int id, @RequestBody ContractUpdateTotalCostRequest request) {
+        return ApiResponse.<ContractResponse>builder()
+                .result(contractService.updateTotalCostContract(id, request))
                 .build();
     }
 

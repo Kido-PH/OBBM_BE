@@ -1,6 +1,7 @@
 package com.springboot.obbm.mapper;
 
 import com.springboot.obbm.dto.contract.request.ContractRequest;
+import com.springboot.obbm.dto.contract.request.ContractUpdateTotalCostRequest;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
 import com.springboot.obbm.model.Contract;
 import org.mapstruct.Mapper;
@@ -20,4 +21,6 @@ public interface ContractMapper {
     @Mapping(target = "locations", ignore = true)
     @Mapping(target = "users", ignore = true)
     void updateContract(@MappingTarget Contract contract, ContractRequest  request);
+
+    void updateTotalContract(@MappingTarget Contract contract, ContractUpdateTotalCostRequest request);
 }

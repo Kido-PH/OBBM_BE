@@ -1,6 +1,7 @@
 package com.springboot.obbm.service;
 
 import com.springboot.obbm.dto.contract.request.ContractRequest;
+import com.springboot.obbm.dto.contract.request.ContractUpdateTotalCostRequest;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
@@ -141,6 +142,20 @@ public class ContractService {
 
         contractMapper.updateContract(contract, request);
 
+
+        Contract savedContract = contractRepository.save(contract);
+        stockRequestService.generateStockRequestsForContract(savedContract);
+
+        return contractMapper.toContractResponse(savedContract);
+    }
+
+
+    public ContractResponse updateTotalCostContract(int id, ContractUpdateTotalCostRequest request) {
+        Contract contract = contractRepository.findByContractIdAndDeletedAtIsNull(id).orElseThrow(
+                () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Hợp đồng"));
+
+        contract.setUpdatedAt(LocalDateTime.now());
+        contractMapper.updateTotalContract(contract, request);
 
         Contract savedContract = contractRepository.save(contract);
         stockRequestService.generateStockRequestsForContract(savedContract);
