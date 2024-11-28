@@ -77,6 +77,7 @@ public class PaymentService {
 
             if ("success".equalsIgnoreCase(status)) {
                 updateContractStatus(contractId, amountPaid);
+                log.info("Success: {}", contractId);
             } else if ("cancel".equalsIgnoreCase(status)) {
                 log.info("Payment cancelled for contract: {}", contractId);
             } else {
@@ -93,16 +94,18 @@ public class PaymentService {
         if (contractOpt.isPresent()) {
             Contract contract = contractOpt.get();
 
-            double deposit = (amountPaid * 100) / contract.getTotalcost();
+            var totalPay = amountPaid + contract.getPrepay();
+
+            log.info("TotalPay: {}", totalPay);
+
+            double deposit = (totalPay * 100) / contract.getTotalcost();
             String payStatus = "Unpaid";
 
-            var totalPay = amountPaid * 1.0 + contract.getPrepay();
-
-            if(totalPay < 50){
+            if(deposit < 50){
                 payStatus = "Unpaid";
-            } else if (totalPay <100) {
+            } else if (deposit <100) {
                 payStatus = "Prepay " + ((int) deposit) + "%";
-            } else if (totalPay >= 100){
+            } else if (deposit >= 100){
                 payStatus = "Paid";
             }
 

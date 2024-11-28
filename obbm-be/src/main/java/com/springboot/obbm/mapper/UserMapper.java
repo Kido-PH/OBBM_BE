@@ -40,6 +40,8 @@ public interface UserMapper {
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .fullname(user.getFullname())
+                .gender(user.getGender())
+                .residence(user.getResidence())
                 .dob(user.getDob())
                 .email(user.getEmail())
                 .phone(user.getPhone())
