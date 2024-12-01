@@ -53,4 +53,16 @@ cloudinary:
   api-key: "461762216833814"
   api-secret: "pxMYhsccAckpcGS8nr0HaWP2Ry0"
 
+payment:
+  vnPay:
+    url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+    tmnCode: "8DRA46XX"
+    secretKey: "0BO3U3B3CILA5KM4JJ531B63A5NW9J2X"
+    returnUrl: "http://localhost:8080/obbm/payment/vn-pay-callback"
+    version: 2.1.0
+    command: "pay"
+    orderType: "other"
+
+
+
 

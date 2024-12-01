@@ -33,6 +33,9 @@ public class User {
     @Column(name = "user_fullname")
     String fullname;
 
+    @Column(name = "user_dob")
+    LocalDate dob;
+
     @Column(name = "user_gender")
     Boolean gender;
 
@@ -50,9 +53,6 @@ public class User {
 
     @Column(name = "user_citizenidentity")
     String citizenIdentity;
-
-    @Column(name = "user_dob")
-    LocalDate dob;
 
     @OneToMany(mappedBy = "users")
     List<Location> listLocation;

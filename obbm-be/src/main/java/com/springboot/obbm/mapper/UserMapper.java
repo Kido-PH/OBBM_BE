@@ -15,8 +15,10 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -36,6 +38,19 @@ public interface UserMapper {
     void updateForAdmin(@MappingTarget User user, UserUpdaterForAdminRequest request);
 
     default UserResponse toUserResponseRole(User user, List<UserRolePermission> urpList) {
+        Boolean isStatus = Stream.of(
+                user.getUserId(),
+                user.getUsername(),
+                user.getFullname(),
+                user.getGender(),
+                user.getResidence(),
+                user.getDob(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getImage(),
+                user.getCitizenIdentity()
+        ).allMatch(Objects::nonNull);
+
         return UserResponse.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
@@ -47,6 +62,7 @@ public interface UserMapper {
                 .phone(user.getPhone())
                 .image(user.getImage())
                 .citizenIdentity(user.getCitizenIdentity())
+                .isStatus(isStatus)
                 .noPassword(!StringUtils.hasText(user.getPassword()))
                 .roles(mapRolesFromUrp(urpList))
                 .createdAt(user.getCreatedAt())

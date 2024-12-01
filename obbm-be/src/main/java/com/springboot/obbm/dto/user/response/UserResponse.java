@@ -1,6 +1,5 @@
 package com.springboot.obbm.dto.user.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -24,6 +23,7 @@ public class UserResponse {
     String phone;
     String image;
     String citizenIdentity;
+    Boolean isStatus = false;
     Boolean noPassword = false;
     Set<RoleForUserResponse> roles;
     LocalDateTime createdAt;
