@@ -16,7 +16,7 @@ public class PaymentCallbackController {
 
     @GetMapping("/success")
     public RedirectView paymentSuccess(@RequestParam Integer contractId,
-                                       @RequestParam Integer amountPaid,
+                                       @RequestParam Long amountPaid,
                                        @RequestParam String status,
                                        @RequestParam Long orderCode) {
         paymentService.updateContractStatus(contractId, amountPaid, orderCode);

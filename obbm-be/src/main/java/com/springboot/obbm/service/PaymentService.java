@@ -2,7 +2,6 @@ package com.springboot.obbm.service;
 
 import com.springboot.obbm.dto.payment.request.CreatePaymentLinkRequest;
 import com.springboot.obbm.dto.payment.response.PaymentLinkResponse;
-import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.model.Contract;
 import com.springboot.obbm.model.PaymentHistory;
 import com.springboot.obbm.respository.ContractRepository;
@@ -49,7 +48,7 @@ public class PaymentService {
             String currentTimeString = String.valueOf(new Date().getTime());
             long orderCode = Long.parseLong(currentTimeString.substring(currentTimeString.length() - 6));
 
-            int pricePrePay = (int) (request.getPrepay() * 1);
+            int pricePrePay = (int) (request.getPrepay() * 1L);
 
             ItemData item = ItemData.builder()
                     .name(request.getProductName())
@@ -78,7 +77,7 @@ public class PaymentService {
         try {
             String status = (String) payload.get("status");
             Integer contractId = (Integer) payload.get("contractId");
-            int amountPaid = (int) payload.get("amount");
+            Long amountPaid = (Long) payload.get("amount");
             Long orderCode = Long.valueOf(payload.get("orderCode").toString());
 
             if ("success".equalsIgnoreCase(status)) {
@@ -95,7 +94,7 @@ public class PaymentService {
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public void updateContractStatus(Integer contractId, Integer amountPaid, Long orderCode) {
+    public void updateContractStatus(Integer contractId, Long amountPaid, Long orderCode) {
         Optional<Contract> contractOpt = contractRepository.findById(contractId);
         if (contractOpt.isEmpty()) {
             log.error("Contract not found for ID {}", contractId);

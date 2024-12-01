@@ -27,7 +27,7 @@ public class PaymentHistory {
 
     Long orderCode;
 
-    int amountPaid;
+    Long amountPaid;
 
     LocalDateTime createdAt;
 

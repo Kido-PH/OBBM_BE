@@ -34,6 +34,7 @@ public class VNPayController {
             );
             return new RedirectView(clientRedirectUrl);
         } catch (Exception e) {
+
             String clientRedirectUrl = String.format(
                     "http://localhost:3000/payment/cancel?status=%s", request.getParameter("vnp_TransactionStatus")
             );

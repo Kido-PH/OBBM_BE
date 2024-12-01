@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class VNPayService {
 
     public PaymentDTO.VNPayResponse createVnPayPayment(HttpServletRequest httpRequest, CreatePaymentLinkRequest request) {
         try {
-            long amount = Math.round(request.getPrepay() * 100L);
+            Long amount = request.getPrepay() * 100L;
             String txnRef = request.getContractId() + "-" + System.currentTimeMillis();
             Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
 
@@ -58,7 +59,7 @@ public class VNPayService {
             // Lấy các tham số từ callback của VNPay
             String responseCode = request.getParameter("vnp_ResponseCode");
             String txnRef = request.getParameter("vnp_TxnRef"); // Ví dụ: "5-1733067001515"
-            int amountPaid = Integer.parseInt(request.getParameter("vnp_Amount")) / 100;
+            Long amountPaid = (Long.parseLong(request.getParameter("vnp_Amount")) / 100);
 
             // Tách contractId từ txnRef
             String[] txnParts = txnRef.split("-");
@@ -76,7 +77,7 @@ public class VNPayService {
         }
     }
 
-    private void updateContractStatus(Integer contractId, Integer amountPaid, Long orderCode) {
+    private void updateContractStatus(Integer contractId, Long amountPaid, Long orderCode) {
        Contract contract = contractRepository.findById(contractId).orElseThrow(
                 () -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Hợp đồng"));
 
