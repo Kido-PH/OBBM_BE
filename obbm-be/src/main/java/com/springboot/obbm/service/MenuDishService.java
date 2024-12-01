@@ -120,4 +120,13 @@ public class MenuDishService {
         menuDish.setDeletedAt(LocalDateTime.now());
         menuDishRepository.save(menuDish);
     }
+
+    public void deleteAllMenuDishesByMenuId(int menuId) {
+        List<MenuDish> menuDishes = menuDishRepository.findAllByMenus_MenuId(menuId);
+
+        if (menuDishes.isEmpty()) {
+            throw new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Các món ăn trong thực đơn");
+        }
+        menuDishRepository.deleteAll(menuDishes);
+    }
 }

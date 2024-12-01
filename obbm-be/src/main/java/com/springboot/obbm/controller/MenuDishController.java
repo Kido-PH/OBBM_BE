@@ -102,4 +102,11 @@ public class MenuDishController {
                 .build();
     }
 
+    @DeleteMapping("/menu/{menuId}")
+    public ApiResponse<?> deleteAllMenuDishesByMenuId(@PathVariable int menuId) {
+        menuDishService.deleteAllMenuDishesByMenuId(menuId);
+        return ApiResponse.builder()
+                .message("Tất cả món ăn trong thực đơn đã được xóa thành công.")
+                .build();
+    }
 }
