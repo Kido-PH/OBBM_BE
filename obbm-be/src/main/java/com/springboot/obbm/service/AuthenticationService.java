@@ -3,9 +3,7 @@ package com.springboot.obbm.service;
 import com.springboot.obbm.client.OutboundObbmClient;
 import com.springboot.obbm.client.OutboundUserClient;
 import com.springboot.obbm.constant.PredefinedRole;
-import com.springboot.obbm.dto.request.AuthenticationRequest;
-import com.springboot.obbm.dto.request.ExchangeTokenRequest;
-import com.springboot.obbm.dto.request.IntrospectRequest;
+import com.springboot.obbm.dto.request.*;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
 import com.springboot.obbm.model.*;
@@ -85,7 +83,7 @@ public class AuthenticationService {
         boolean isValid = true;
 
         try {
-            verifyToken(token, false);
+            verifyToken(token, false); // Chỉ chấp nhận accessToken
         } catch (AppException e) {
             isValid = false;
         }
@@ -133,12 +131,18 @@ public class AuthenticationService {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        Date expiryTime = (isRefresh)
-                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
-                .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
-                : signedJWT.getJWTClaimsSet().getExpirationTime();
+        if (!signedJWT.verify(verifier)) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
 
-        if (!signedJWT.verify(verifier) || expiryTime.before(new Date())) {
+        boolean tokenIsRefresh = signedJWT.getJWTClaimsSet().getBooleanClaim("isRefresh");
+
+        if (tokenIsRefresh != isRefresh) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        if (expiryTime.before(new Date())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
@@ -149,7 +153,7 @@ public class AuthenticationService {
         return signedJWT;
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_USER));
@@ -162,23 +166,15 @@ public class AuthenticationService {
         var accessToken = generateAccessToken(user);
         var refreshToken = generateRefreshToken(user);
 
-        // Set refresh token vào HttpOnly Cookie
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);
-        refreshTokenCookie.setPath("/obbm/auth/refresh");
-        refreshTokenCookie.setMaxAge((int) REFRESHABLE_DURATION);
-
-        response.addCookie(refreshTokenCookie);
-
+        // Trả về cả accessToken và refreshToken
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
-    public AuthenticationResponse refreshToken(HttpServletRequest request) throws ParseException, JOSEException {
-
-        String refreshToken = getRefreshTokenFromCookies(request);
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
+        String refreshToken = request.getRefreshToken();
 
         var signToken = verifyToken(refreshToken, true);
         var username = signToken.getJWTClaimsSet().getSubject();
@@ -188,38 +184,31 @@ public class AuthenticationService {
         var newAccessToken = generateAccessToken(user);
 
         return AuthenticationResponse.builder()
-                .accessToken(newAccessToken)  // Trả về access token mới
+                .accessToken(newAccessToken)
                 .build();
     }
 
-    public void logout(HttpServletRequest request) throws ParseException, JOSEException {
-        String refreshToken = getRefreshTokenFromCookies(request);
-        invalidateToken(refreshToken, true);
+    public void logout(LogoutRequest request) throws ParseException, JOSEException {
+        String refreshToken = request.getRefreshToken();
+        String accessToken = request.getAccessToken();
 
-        // Lấy access token từ header Authorization
-        String accessToken = request.getHeader("Authorization");
-        if (accessToken != null && accessToken.startsWith("Bearer ")) {
-            accessToken = accessToken.substring(7); // Loại bỏ tiền tố "Bearer "
+        if (refreshToken != null) {
+            invalidateToken(refreshToken, true);
+        }
+
+        if (accessToken != null) {
             invalidateToken(accessToken, false);
         }
+
         log.info("User logged out and both tokens (access and refresh) are invalidated.");
     }
 
     private String generateAccessToken(User user) {
-        return generateToken(user, VALID_DURATION);
+        return generateToken(user, VALID_DURATION, false);
     }
 
     private String generateRefreshToken(User user) {
-        return generateToken(user, REFRESHABLE_DURATION);
-    }
-
-    private String getRefreshTokenFromCookies(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        return Arrays.stream(cookies)
-                .filter(cookie -> "refreshToken".equals(cookie.getName()))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+        return generateToken(user, REFRESHABLE_DURATION, true);
     }
 
     private void invalidateToken(String token, boolean isRefresh) throws ParseException, JOSEException {
@@ -231,16 +220,17 @@ public class AuthenticationService {
         InvalidatedToken invalidatedToken = InvalidatedToken.builder()
                 .id(tokenJti)
                 .expiryTime(tokenExpiryTime)
+                .createdAt(LocalDateTime.now())
                 .build();
         invalidatedTokenRepository.save(invalidatedToken);
     }
 
-    public String generateToken(User user, long duration) {
+    public String generateToken(User user, long duration, boolean isRefresh) {
         ensureUserRolePermissionExists(user);
         String scope = buildScope(user);
 
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+        JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
                 .issuer("kido.com")
                 .issueTime(new Date())
@@ -248,10 +238,14 @@ public class AuthenticationService {
                         Instant.now().plus(duration, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope", scope) // Lưu các quyền của người dùng
-                .build();
+                .claim("isRefresh", isRefresh);
 
-        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        if (!isRefresh) {
+            jwtClaimsSet.claim("scope", scope); // Chỉ thêm scope nếu là accessToken
+        }
+
+        Payload payload = new Payload(jwtClaimsSet.build().toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
 
         try {

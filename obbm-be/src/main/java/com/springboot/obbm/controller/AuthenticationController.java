@@ -2,6 +2,8 @@ package com.springboot.obbm.controller;
 
 import com.springboot.obbm.dto.request.AuthenticationRequest;
 import com.springboot.obbm.dto.request.IntrospectRequest;
+import com.springboot.obbm.dto.request.LogoutRequest;
+import com.springboot.obbm.dto.request.RefreshTokenRequest;
 import com.springboot.obbm.dto.response.ApiResponse;
 import com.springboot.obbm.dto.response.AuthenticationResponse;
 import com.springboot.obbm.dto.response.IntrospectResponse;
@@ -33,12 +35,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/token")
-    ApiResponse<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request, HttpServletResponse response) {
-        var result = authenticationService.authenticate(request, response);
-        ApiResponse<AuthenticationResponse> apiResponse = ApiResponse.<AuthenticationResponse>builder()
+    ApiResponse<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) {
+        var result = authenticationService.authenticate(request);
+        return ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
                 .build();
-        return apiResponse;
     }
 
     @PostMapping("/introspect")
@@ -51,17 +52,20 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    ApiResponse<AuthenticationResponse> authenticate(HttpServletRequest request)
+    ApiResponse<AuthenticationResponse> refresh(@Valid @RequestBody RefreshTokenRequest request)
             throws ParseException, JOSEException {
         var result = authenticationService.refreshToken(request);
-        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> logout(HttpServletRequest request)
+    ApiResponse<Void> logout(@Valid @RequestBody LogoutRequest request)
             throws ParseException, JOSEException {
         authenticationService.logout(request);
         return ApiResponse.<Void>builder()
+                .message("Đã đăng xuất thành công!")
                 .build();
     }
 

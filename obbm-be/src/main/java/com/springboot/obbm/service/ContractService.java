@@ -18,7 +18,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +37,40 @@ public class ContractService {
     MenuRepository menuRepository;
     UserRepository userRepository;
     ContractMapper contractMapper;
+
+
+    public Map<String, Object> getRevenueStatistics(LocalDateTime startDate, LocalDateTime endDate) {
+        // Sử dụng phương thức tổng quát
+        List<Contract> completedToday = contractRepository.findContractsByStatusAndDateRange("Completed", startDate, endDate);
+        List<Contract> activePaid = contractRepository.findContractsByStatusAndDateRange("Actived", startDate, endDate);
+        List<Contract> pendingApproval = contractRepository.findContractsByStatusAndDateRange("Pending", startDate, endDate);
+        List<Contract> cancelled = contractRepository.findContractsByStatusAndDateRange("Cancelled", startDate, endDate);
+
+        // Tính tổng tiền
+        Double completedRevenue = completedToday.stream().mapToDouble(Contract::getPrepay).sum();
+        Double partiallyPaidRevenue = activePaid.stream().mapToDouble(Contract::getPrepay).sum();
+        Double pendingRevenue = pendingApproval.stream().mapToDouble(Contract::getPrepay).sum();
+        Double cancelledRevenue = cancelled.stream().mapToDouble(Contract::getTotalcost).sum();
+
+        // Thống kê doanh thu theo ngày
+        List<Contract> contractsByDate = contractRepository.findContractsByDateRange(startDate, endDate);
+
+        Map<LocalDate, Double> revenueByDay = contractsByDate.stream()
+                .collect(Collectors.groupingBy(
+                        contract -> contract.getUpdatedAt().toLocalDate(),
+                        Collectors.summingDouble(Contract::getPrepay)
+                ));
+
+        // Chuẩn bị kết quả
+        Map<String, Object> result = new HashMap<>();
+        result.put("completedToday", Map.of("count", completedToday.size(), "total", completedRevenue));
+        result.put("activePaid", Map.of("count", activePaid.size(), "total", partiallyPaidRevenue));
+        result.put("pendingApproval", Map.of("count", pendingApproval.size(), "total", pendingRevenue));
+        result.put("cancelled", Map.of("count", cancelled.size(), "total", cancelledRevenue));
+        result.put("revenueByDay", revenueByDay);
+
+        return result;
+    }
 
     public PageImpl<ContractResponse> getAllContracts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

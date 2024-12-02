@@ -9,8 +9,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/contract")
@@ -18,6 +22,19 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ContractController {
     private ContractService contractService;
+
+    @GetMapping("/statistics")
+    public ApiResponse<Map<String, Object>> getRevenueStatistics(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        LocalDateTime defaultStart = (startDate == null) ? LocalDateTime.now().withDayOfMonth(1) : startDate;
+        LocalDateTime defaultEnd = (endDate == null) ? LocalDateTime.now() : endDate;
+
+        Map<String, Object> statistics = contractService.getRevenueStatistics(defaultStart, defaultEnd);
+        return ApiResponse.<Map<String, Object>>builder()
+                .result(statistics)
+                .build();
+    }
 
     @GetMapping
     ApiResponse<PageImpl<ContractResponse>> getAllContracts(
@@ -49,7 +66,7 @@ public class ContractController {
         }
     }
 
-    @PreAuthorize("@securityUtil.isCurrentUser(#userId)")
+//    @PreAuthorize("@securityUtil.isCurrentUser(#userId)")
     @GetMapping("/latestContract/{id}")
     ApiResponse<ContractResponse> getLatestContract(@PathVariable String id) {
         return ApiResponse.<ContractResponse>builder()

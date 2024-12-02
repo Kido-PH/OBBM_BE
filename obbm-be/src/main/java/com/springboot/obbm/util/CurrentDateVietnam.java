@@ -1,5 +1,7 @@
 package com.springboot.obbm.util;
 
+import org.springframework.web.bind.annotation.InitBinder;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -14,6 +16,7 @@ public class CurrentDateVietnam {
         return nowInVietnam.toLocalDateTime();
     }
 
+    @InitBinder
     public static LocalDateTime parseDateTime(String dateTimeStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         try {
