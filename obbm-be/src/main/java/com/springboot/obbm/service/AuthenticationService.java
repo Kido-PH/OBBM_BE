@@ -121,9 +121,11 @@ public class AuthenticationService {
                         .build()));
 
         var accessToken = generateAccessToken(user);
+        var refreshToken = generateRefreshToken(user);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 

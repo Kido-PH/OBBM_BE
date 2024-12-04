@@ -47,7 +47,6 @@ public interface UserMapper {
                 user.getDob(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getImage(),
                 user.getCitizenIdentity()
         ).allMatch(Objects::nonNull);
 
