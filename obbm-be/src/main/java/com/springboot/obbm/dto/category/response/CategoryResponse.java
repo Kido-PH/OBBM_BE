@@ -20,4 +20,5 @@ public class CategoryResponse {
     List<DishResponse> listDish;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

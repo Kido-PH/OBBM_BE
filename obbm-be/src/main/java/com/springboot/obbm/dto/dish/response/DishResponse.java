@@ -21,4 +21,5 @@ public class DishResponse {
     CategoryForDishResponse categories;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

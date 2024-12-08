@@ -19,4 +19,5 @@ public class EventServicesResponse {
     ServiceForEventServicesResponse services;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

@@ -18,4 +18,5 @@ public class IngredientResponse {
     String desc;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

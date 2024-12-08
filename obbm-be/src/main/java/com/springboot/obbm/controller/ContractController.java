@@ -66,7 +66,26 @@ public class ContractController {
         }
     }
 
-//    @PreAuthorize("@securityUtil.isCurrentUser(#userId)")
+    @GetMapping("/byStatusAndDateRange")
+    ApiResponse<PageImpl<ContractResponse>> getAllContractsByStatusAndDateRange(
+            @RequestParam String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        LocalDateTime defaultStart = (startDate == null) ? LocalDateTime.now().withDayOfMonth(1) : startDate;
+        LocalDateTime defaultEnd = (endDate == null) ? LocalDateTime.now() : endDate;
+        try {
+            int adjustedPage = (page > 0) ? page - 1 : 0;
+            return ApiResponse.<PageImpl<ContractResponse>>builder()
+                    .result(contractService.getAllContractsByStatusAndDateRange(status, defaultStart, defaultEnd, adjustedPage, size))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //    @PreAuthorize("@securityUtil.isCurrentUser(#userId)")
     @GetMapping("/latestContract/{id}")
     ApiResponse<ContractResponse> getLatestContract(@PathVariable String id) {
         return ApiResponse.<ContractResponse>builder()

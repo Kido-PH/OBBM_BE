@@ -34,4 +34,5 @@ public class ContractResponse {
     List<StockRequestForContractResponse> listStockrequests;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

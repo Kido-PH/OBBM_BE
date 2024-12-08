@@ -27,6 +27,14 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
             @Param("endDate") LocalDateTime endDate
     );
 
+    @Query("SELECT c FROM contract c WHERE c.status = :status AND c.updatedAt BETWEEN :startDate AND :endDate AND c.deletedAt IS NULL")
+    Page<Contract> findPageContractsByStatusAndDateRange(
+            @Param("status") String status,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
+    );
+
     @Query("SELECT c FROM contract c WHERE c.updatedAt BETWEEN :startDate AND :endDate AND c.deletedAt IS NULL")
     List<Contract> findContractsByDateRange(
             @Param("startDate") LocalDateTime startDate,

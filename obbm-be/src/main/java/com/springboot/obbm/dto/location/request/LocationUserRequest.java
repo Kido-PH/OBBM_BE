@@ -12,6 +12,7 @@ public class LocationUserRequest {
     String name;
     String type;
     String address;
+    Double cost;
     String userId;
 }
 

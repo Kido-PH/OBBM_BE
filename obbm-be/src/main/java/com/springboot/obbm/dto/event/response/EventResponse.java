@@ -24,4 +24,5 @@ public class EventResponse {
     List<MenuForEventResponse> listMenu;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

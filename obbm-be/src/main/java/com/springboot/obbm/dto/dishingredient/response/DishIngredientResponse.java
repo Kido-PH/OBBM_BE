@@ -23,4 +23,5 @@ public class DishIngredientResponse {
     IngredientResponse ingredients;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

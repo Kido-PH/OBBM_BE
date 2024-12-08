@@ -19,4 +19,5 @@ public class MenuDishResponse {
     DishForMenuDishResponse dishes;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

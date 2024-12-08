@@ -21,4 +21,5 @@ public class ServicesResponse {
     Boolean status;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

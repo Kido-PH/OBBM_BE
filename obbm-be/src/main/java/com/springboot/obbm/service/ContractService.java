@@ -90,6 +90,25 @@ public class ContractService {
         return new PageImpl<>(responseList, pageable, contractPage.getTotalElements());
     }
 
+
+    public PageImpl<ContractResponse> getAllContractsByStatusAndDateRange(String status, LocalDateTime startDate,  LocalDateTime endDate, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Contract> contractPage = contractRepository.findPageContractsByStatusAndDateRange(status, startDate,endDate, pageable);
+
+        var responseList = contractPage.getContent().stream()
+                .map(contract -> {
+                    contract.setListStockrequests(
+                            contract.getListStockrequests().stream()
+                                    .filter(stockRequest -> stockRequest.getDeletedAt() == null)
+                                    .collect(Collectors.toList())
+                    );
+                    return contractMapper.toContractResponse(contract);
+                })
+                .distinct()
+                .toList();
+        return new PageImpl<>(responseList, pageable, contractPage.getTotalElements());
+    }
+
     public PageImpl<ContractResponse> getAllContractsByUserId(String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Contract> contractPage = contractRepository.findAllByUsers_UserIdAndDeletedAtIsNull(userId, pageable);

@@ -21,4 +21,5 @@ public class StockrequestResponse {
     private String status;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

@@ -4,6 +4,8 @@ import com.springboot.obbm.dto.dish.response.CategoryForDishResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,4 +19,7 @@ public class DishForMenuDishResponse {
     String description;
     String existing;
     CategoryForDishResponse categories;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

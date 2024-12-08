@@ -29,4 +29,5 @@ public class LocationResponse {
     List<ContractForLocationResponse> listContract;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

@@ -23,4 +23,5 @@ public class MenuResponse {
     List<MenuDishForMenuResponse> listMenuDish;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }
