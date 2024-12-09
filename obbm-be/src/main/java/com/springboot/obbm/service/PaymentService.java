@@ -133,6 +133,7 @@ public class PaymentService {
         contractRepository.save(contract);
 
         PaymentHistory paymentHistory = new PaymentHistory();
+        paymentHistory.setPaymentMethod("PayOS");
         paymentHistory.setContract(contract);
         paymentHistory.setAmountPaid(amountPaid);
         paymentHistory.setOrderCode(orderCode); // Lưu orderCode
@@ -141,4 +142,6 @@ public class PaymentService {
 
         log.info("Updated contract ID {}: Payment status {}, New Total Paid {}", contractId, payStatus, newTotalPaid);
     }
+
+
 }

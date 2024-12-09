@@ -1,6 +1,5 @@
 package com.springboot.obbm.dto.contract.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

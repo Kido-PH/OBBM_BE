@@ -176,12 +176,20 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
+        String accessToken = request.getAccessToken();
         String refreshToken = request.getRefreshToken();
 
         var signToken = verifyToken(refreshToken, true);
         var username = signToken.getJWTClaimsSet().getSubject();
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.OBJECT_NOT_EXISTED, "Người dùng"));
+
+        var logoutRequest = LogoutRequest.builder()
+                .accessToken(accessToken)
+                .refreshToken(null)
+                .build();
+
+        logout(logoutRequest);
 
         var newAccessToken = generateAccessToken(user);
 

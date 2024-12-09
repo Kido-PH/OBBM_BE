@@ -98,6 +98,7 @@ public class VNPayService {
         contractRepository.save(contract);
 
         PaymentHistory paymentHistory = new PaymentHistory();
+        paymentHistory.setPaymentMethod("VNPay");
         paymentHistory.setContract(contract);
         paymentHistory.setAmountPaid(amountPaid);
         paymentHistory.setOrderCode(orderCode);

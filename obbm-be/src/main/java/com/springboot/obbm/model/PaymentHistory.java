@@ -21,6 +21,8 @@ public class PaymentHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
+    String paymentMethod;
+
     @ManyToOne
     @JoinColumn(name = "contract_id", nullable = false)
     Contract contract;
