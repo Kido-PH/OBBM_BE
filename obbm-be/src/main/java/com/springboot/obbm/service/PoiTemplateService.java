@@ -2,7 +2,6 @@ package com.springboot.obbm.service;
 
 import com.deepoove.poi.XWPFTemplate;
 import com.springboot.obbm.dto.contract.response.ContractResponse;
-import com.springboot.obbm.model.Contract;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -11,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;

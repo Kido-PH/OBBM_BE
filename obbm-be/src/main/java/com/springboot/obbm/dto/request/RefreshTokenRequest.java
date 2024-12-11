@@ -9,10 +9,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-//@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RefreshTokenRequest {
     @NotBlank
     private String refreshToken;
-    @NotBlank
-    private String accessToken;
 }
