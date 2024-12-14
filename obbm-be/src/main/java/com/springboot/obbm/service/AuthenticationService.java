@@ -115,7 +115,6 @@ public class AuthenticationService {
                         .username(userInfo.getEmail())
                         .fullname(userInfo.getName())
                         .email(userInfo.getEmail())
-                        .image(userInfo.getPicture())
                         .createdAt(LocalDateTime.now())
                         .roles(roles)
                         .build()));
