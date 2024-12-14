@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, Integer> {
-    Page<Contract> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Contract> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<Contract> findByContractIdAndDeletedAtIsNull(int id);
     Optional<Contract> findTopByUsers_UserIdAndDeletedAtIsNullOrderByCreatedAtDesc(String users_userId);

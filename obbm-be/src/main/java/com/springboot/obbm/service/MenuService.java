@@ -37,7 +37,7 @@ public class MenuService {
 
     public PageImpl<MenuResponse> getAllMenus(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Menu> menuPage = menuRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Menu> menuPage = menuRepository.findAllByDeletedAtIsNullOrderByMenuIdDesc(pageable);
 
         var responseList = menuPage.getContent().stream()
                 .map(menu -> {

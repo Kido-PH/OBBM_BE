@@ -33,7 +33,7 @@ public class EventService {
 
     public PageImpl<EventResponse> getAllEvents(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Event> eventPage = eventRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Event> eventPage = eventRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         var responseList = eventPage.getContent().stream()
                 .distinct()

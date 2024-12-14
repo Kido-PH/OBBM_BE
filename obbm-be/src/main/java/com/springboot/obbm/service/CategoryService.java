@@ -30,7 +30,7 @@ public class CategoryService {
 
     public PageImpl<CategoryResponse> getAllCategories(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Category> categoryPage = categoryRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Category> categoryPage = categoryRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         var responseList = categoryPage.getContent().stream()
                 .map(category -> {

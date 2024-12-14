@@ -17,8 +17,8 @@ import java.util.List;
 public class PaymentHistoryController {
     PaymentHistoryService paymentHistoryService;
 
-    @GetMapping()
-    ApiResponse<List<PaymentHistoryResponse>> getAll(@RequestParam Integer contractId){
+    @GetMapping("/{contractId}")
+    ApiResponse<List<PaymentHistoryResponse>> getAll(@PathVariable Integer contractId){
         return ApiResponse.<List<PaymentHistoryResponse>>builder()
                 .result(paymentHistoryService.getAllPaymentHistories(contractId))
                 .build();

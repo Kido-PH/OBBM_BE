@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface EventServiceRepository extends JpaRepository<EventServices, Integer> {
-    Page<EventServices> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<EventServices> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<EventServices> findByEventserviceIdAndDeletedAtIsNull(int id);
 

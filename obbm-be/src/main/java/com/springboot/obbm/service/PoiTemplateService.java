@@ -35,6 +35,8 @@ public class PoiTemplateService {
 
     private Map<String, Object> buildContent(ContractResponse contract) {
         Map<String, Object> content = new HashMap<>();
+        content.put("HopDong_Id", contract.getContractId() + 10000);
+        content.put("HopDong_Ten", contract.getName().toUpperCase());
         return content;
     }
 }

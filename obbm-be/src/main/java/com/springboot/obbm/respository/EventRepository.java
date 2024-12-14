@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Integer> {
-    Page<Event> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Event> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<Event> findByEventIdAndDeletedAtIsNull(int id);
 

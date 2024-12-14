@@ -32,7 +32,7 @@ public class DishService {
 
     public PageImpl<DishResponse> getAllDishes(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Dish> dishPage = dishRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Dish> dishPage = dishRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         var responseList = dishPage.getContent().stream()
                 .distinct().map(dishMapper::toDishResponse)

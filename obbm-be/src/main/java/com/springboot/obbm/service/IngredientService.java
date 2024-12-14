@@ -29,7 +29,7 @@ public class IngredientService {
 
     public PageImpl<IngredientResponse> getAllIngredients(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Ingredient> dishPage = ingredientRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Ingredient> dishPage = ingredientRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         var responseList = dishPage.getContent().stream()
                 .distinct().map(ingredientMapper::toIngredientResponse)

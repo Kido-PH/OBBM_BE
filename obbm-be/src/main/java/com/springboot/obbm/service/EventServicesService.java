@@ -55,7 +55,7 @@ public class EventServicesService {
 
     public PageImpl<EventServicesResponse> getAllEventServices(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<EventServices> eventServicePage = eventServiceRepository.findAllByDeletedAtIsNull(pageable);
+        Page<EventServices> eventServicePage = eventServiceRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         var responseList = eventServicePage.getContent().stream()
                 .distinct().map(eventServiceMapper::toEventServiceResponse)

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface DishRepository extends JpaRepository<Dish, Integer> {
-    Page<Dish> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Dish> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<Dish> findByDishIdAndDeletedAtIsNull(int id);
 }

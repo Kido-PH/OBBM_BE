@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface IngredientRepository extends JpaRepository<Ingredient, Integer> {
-    Page<Ingredient> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Ingredient> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<Ingredient> findByIngredientIdAndDeletedAtIsNull(int id);
 }

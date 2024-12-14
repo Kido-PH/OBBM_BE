@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface LocationRespository extends JpaRepository<Location, Integer> {
-    Page<Location> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Location> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<Location> findByLocationIdAndDeletedAtIsNull(int id);
 }

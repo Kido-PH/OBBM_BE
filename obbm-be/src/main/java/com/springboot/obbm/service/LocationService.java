@@ -31,7 +31,7 @@ public class LocationService {
 
     public PageImpl<LocationResponse> getAllLocation(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Location> locationPage = locationRespository.findAllByDeletedAtIsNull(pageable);
+        Page<Location> locationPage = locationRespository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         var responseList = locationPage.getContent().stream()
                 .map(location -> {

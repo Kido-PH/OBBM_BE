@@ -27,7 +27,7 @@ public class ServicesService {
 
     public PageImpl<ServicesResponse> getAllServices(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Services> servicePage = servicesRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Services> servicePage = servicesRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         var responseList = servicePage.getContent().stream()
                 .distinct().map(servicesMapper::toServiceResponse)

@@ -74,7 +74,7 @@ public class ContractService {
 
     public PageImpl<ContractResponse> getAllContracts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Contract> contractPage = contractRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Contract> contractPage = contractRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
 
         var responseList = contractPage.getContent().stream()
                 .map(contract -> {
@@ -170,6 +170,7 @@ public class ContractService {
         contract.setCustmail(user.getEmail());
         contract.setPrepay(0.0);
         contract.setCreatedAt(LocalDateTime.now());
+        contract.setUpdatedAt(LocalDateTime.now());
 
         Contract savedContract = contractRepository.save(contract);
         stockRequestService.generateStockRequestsForContract(savedContract);

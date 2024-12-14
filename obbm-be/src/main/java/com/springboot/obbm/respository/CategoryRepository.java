@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
-    Page<Category> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Category> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<Category> findByCategoryIdAndDeletedAtIsNull(int id);
 }

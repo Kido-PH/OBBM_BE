@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface ServicesRepository extends JpaRepository<Services, Integer> {
-    Page<Services> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Services> findAllByDeletedAtIsNullOrderByCreatedAtDesc(Pageable pageable);
 
     Optional<Services> findByServiceIdAndDeletedAtIsNull(int id);
 }
