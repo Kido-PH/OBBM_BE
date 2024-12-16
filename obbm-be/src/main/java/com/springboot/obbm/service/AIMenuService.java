@@ -136,6 +136,7 @@ public class AIMenuService {
     }
 
     private MenuAIResponse parseSingleMenu(JsonNode menuNode, Integer eventId, double budget) {
+        Set<Integer> existingDishIds = new HashSet<>();
         List<MenuAIResponse.DishAIResponse> dishResponses = new ArrayList<>();
         double totalCost = 0;
 
@@ -143,40 +144,53 @@ public class AIMenuService {
         if (dishes != null && dishes.isArray()) {
             for (JsonNode dishNode : dishes) {
                 int dishId = dishNode.get("dishId").asInt();
+                if (existingDishIds.contains(dishId)) {
+                    log.warn("Món ăn trùng lặp (dishId={}): bỏ qua.", dishId);
+                    continue;
+                }
+
                 String name = dishNode.get("name").asText();
                 double price = dishNode.get("price").asDouble();
-                totalCost += price;
+                existingDishIds.add(dishId);
 
+                totalCost += price;
                 dishResponses.add(new MenuAIResponse.DishAIResponse(dishId, name, price));
             }
         }
 
-        // Xác minh tổng chi phí và thêm món nếu cần
-        if (totalCost < budget) {
-            log.info("Total cost ({}) thấp hơn mức tối thiểu của ngân sách. Đang thêm món ăn bổ sung...", totalCost);
+        // Nếu tổng chi phí thấp hơn mức tối thiểu, thêm món ăn từ danh sách hợp lệ
+        if (totalCost < budget - 10000) {
+            log.info("Total cost ({}) thấp hơn ngân sách cho phép. Đang thêm món ăn bổ sung...", totalCost);
 
-            // Sử dụng eventId để lấy danh sách món hợp lệ
-            List<Dish> validDishes = fetchValidDishes(eventId, budget); // Truyền đúng eventId
+            List<Dish> validDishes = fetchValidDishes(eventId, budget);
             validDishes.sort((d1, d2) -> Double.compare(d2.getPrice(), d1.getPrice())); // Sắp xếp giảm dần
 
-            // Tìm và thêm các món để đạt gần budget nhất
             for (Dish dish : validDishes) {
-                if (totalCost + dish.getPrice() <= budget) {
-                    dishResponses.add(new MenuAIResponse.DishAIResponse(
-                            dish.getDishId(),
-                            dish.getName(),
-                            dish.getPrice()
-                    ));
-                    totalCost += dish.getPrice();
-                }
-                if (totalCost >= budget) {
-                    break;
+                if (!existingDishIds.contains(dish.getDishId())) {
+                    if (totalCost + dish.getPrice() <= budget + 10000) {
+                        dishResponses.add(new MenuAIResponse.DishAIResponse(
+                                dish.getDishId(),
+                                dish.getName(),
+                                dish.getPrice()
+                        ));
+                        totalCost += dish.getPrice();
+                        existingDishIds.add(dish.getDishId());
+                    }
+                    if (totalCost >= budget - 10000) {
+                        break;
+                    }
                 }
             }
 
-            if (totalCost < budget) {
+            if (totalCost < budget - 10000) {
                 log.warn("Không thể đạt đủ ngân sách tối thiểu sau khi thêm món ăn. Tổng hiện tại: {}", totalCost);
             }
+        }
+
+        // Kiểm tra tổng chi phí có hợp lệ không
+        if (totalCost < budget - 10000 || totalCost > budget + 10000) {
+            log.error("Menu không hợp lệ: tổng chi phí ngoài khoảng ngân sách cho phép ({}).", totalCost);
+            throw new IllegalArgumentException("Menu không hợp lệ: tổng chi phí không nằm trong khoảng ngân sách cho phép.");
         }
 
         return MenuAIResponse.builder()
