@@ -18,6 +18,7 @@ public class MenuAIResponse {
         private int dishId;
         private String name;
         private double price;
+        private String category;
     }
     private double totalCost;
 }

@@ -153,44 +153,42 @@ public class AIMenuService {
                 double price = dishNode.get("price").asDouble();
                 existingDishIds.add(dishId);
 
+                // Truy vấn thông tin danh mục từ cơ sở dữ liệu
+                Optional<Dish> dishOptional = dishRepository.findByDishIdAndDeletedAtIsNull(dishId);
+                String category = dishOptional.map(d -> d.getCategories().getName()).orElse("Unknown");
+
                 totalCost += price;
-                dishResponses.add(new MenuAIResponse.DishAIResponse(dishId, name, price));
+                dishResponses.add(new MenuAIResponse.DishAIResponse(dishId, name, price, category));
             }
         }
 
-        // Nếu tổng chi phí thấp hơn mức tối thiểu, thêm món ăn từ danh sách hợp lệ
-        if (totalCost < budget - 10000) {
-            log.info("Total cost ({}) thấp hơn ngân sách cho phép. Đang thêm món ăn bổ sung...", totalCost);
+        // Xác minh tổng chi phí và thêm món nếu cần
+        if (totalCost < budget) {
+            log.info("Total cost ({}) thấp hơn mức tối thiểu của ngân sách. Đang thêm món ăn bổ sung...", totalCost);
 
-            List<Dish> validDishes = fetchValidDishes(eventId, budget);
+            // Sử dụng eventId để lấy danh sách món hợp lệ
+            List<Dish> validDishes = fetchValidDishes(eventId, budget); // Truyền đúng eventId
             validDishes.sort((d1, d2) -> Double.compare(d2.getPrice(), d1.getPrice())); // Sắp xếp giảm dần
 
+            // Tìm và thêm các món để đạt gần budget nhất
             for (Dish dish : validDishes) {
-                if (!existingDishIds.contains(dish.getDishId())) {
-                    if (totalCost + dish.getPrice() <= budget + 10000) {
-                        dishResponses.add(new MenuAIResponse.DishAIResponse(
-                                dish.getDishId(),
-                                dish.getName(),
-                                dish.getPrice()
-                        ));
-                        totalCost += dish.getPrice();
-                        existingDishIds.add(dish.getDishId());
-                    }
-                    if (totalCost >= budget - 10000) {
-                        break;
-                    }
+                if (totalCost + dish.getPrice() <= budget) {
+                    dishResponses.add(new MenuAIResponse.DishAIResponse(
+                            dish.getDishId(),
+                            dish.getName(),
+                            dish.getPrice(),
+                            dish.getCategories().getName()
+                    ));
+                    totalCost += dish.getPrice();
+                }
+                if (totalCost >= budget) {
+                    break;
                 }
             }
 
-            if (totalCost < budget - 10000) {
+            if (totalCost < budget) {
                 log.warn("Không thể đạt đủ ngân sách tối thiểu sau khi thêm món ăn. Tổng hiện tại: {}", totalCost);
             }
-        }
-
-        // Kiểm tra tổng chi phí có hợp lệ không
-        if (totalCost < budget - 10000 || totalCost > budget + 10000) {
-            log.error("Menu không hợp lệ: tổng chi phí ngoài khoảng ngân sách cho phép ({}).", totalCost);
-            throw new IllegalArgumentException("Menu không hợp lệ: tổng chi phí không nằm trong khoảng ngân sách cho phép.");
         }
 
         return MenuAIResponse.builder()

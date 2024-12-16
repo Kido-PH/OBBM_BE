@@ -23,4 +23,5 @@ public class MenuResponse {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
 }
