@@ -1,5 +1,6 @@
 server:
   port: 8080
+  #  address: 10.82.48.158
   servlet:
     context-path: /obbm
 
@@ -63,6 +64,11 @@ payment:
     command: "pay"
     orderType: "other"
 
-
-
+open-ai:
+  chat-model:
+    api-key: "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"
+    model-name: gpt-3.5-turbo
+    temperature: 0.7
+    log-requests: true
+    log-responses: true
 

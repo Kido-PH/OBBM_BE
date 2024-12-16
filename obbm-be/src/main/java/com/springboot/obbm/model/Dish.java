@@ -1,6 +1,5 @@
 package com.springboot.obbm.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.springboot.obbm.util.StringFieldTrimmer;
@@ -10,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity(name = "dish")
@@ -47,6 +47,9 @@ public class Dish {
 
     @OneToMany(mappedBy = "dishes")
     List<DishIngredient> listDishIngredient;
+
+    @ManyToMany(mappedBy = "dish")
+    Set<Event> event;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

@@ -138,7 +138,7 @@ public class UserService {
         return userMapper.toUserResponseRole(user, urpList);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
 //    @PreAuthorize("hasAuthority('APPROVE_POST')")
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream().map(user -> {

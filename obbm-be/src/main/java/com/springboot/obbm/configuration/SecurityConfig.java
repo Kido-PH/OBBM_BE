@@ -31,7 +31,7 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/users/user", "/auth/token", "/auth/introspect", "/auth/logout",
             "/auth/refresh", "/auth/outbound/authentication", "/payment/**", "/vnpay/**",
-            "/menu/getAllMenuAdmin", "/event", "/dish", "/category", "/contract/totalCost/**"
+            "/menu/getAllMenuAdmin", "/event", "/dish", "/category", "/contract/totalCost/**", "/AiMenu/**"
     };
 
     @Autowired

@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity(name = "event")
@@ -49,6 +50,14 @@ public class Event {
 
     @OneToMany(mappedBy = "events")
     List<Contract> listContract;
+
+    @ManyToMany
+    @JoinTable(
+            name = "eventdish", // Tên bảng trung gian
+            joinColumns = @JoinColumn(name = "event_id"), // Tên cột đại diện cho Event
+            inverseJoinColumns = @JoinColumn(name = "dish_id") // Tên cột đại diện cho Dish
+    )
+    Set<Dish> dish;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

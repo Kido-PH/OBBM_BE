@@ -108,7 +108,20 @@
 			<artifactId>poi-tl-plugin-markdown</artifactId>
 			<version>1.0.3</version>
 		</dependency>
-    </dependencies>
+
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
+			<version>0.31.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-kotlin</artifactId>
+			<version>2.15.2</version> <!-- Hoặc phiên bản mới nhất -->
+		</dependency>
+
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
