@@ -10,6 +10,7 @@ import com.springboot.obbm.model.*;
 import com.springboot.obbm.exception.AppException;
 import com.springboot.obbm.exception.ErrorCode;
 import com.springboot.obbm.respository.InvalidatedTokenRepository;
+import com.springboot.obbm.respository.IssuedTokenRepository;
 import com.springboot.obbm.respository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -47,6 +48,7 @@ public class AuthenticationService {
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
     UserRolePermissionRepository userRolePermissionRepository;
+    IssuedTokenRepository issuedTokenRepository;
     OutboundObbmClient outboundObbmClient;
     OutboundUserClient outboundUserClient;
 
@@ -204,6 +206,27 @@ public class AuthenticationService {
         log.info("User logged out and both tokens (access and refresh) are invalidated.");
     }
 
+    public void logoutUserTokens(User user) {
+        log.info("Invalidating all tokens for user: {}", user.getUsername());
+
+        // Tìm tất cả các token đã cấp phát cho user từ bảng IssuedToken
+        List<IssuedToken> tokens = issuedTokenRepository.findByUsername(user.getUsername());
+
+        for (IssuedToken token : tokens) {
+            InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                    .id(token.getIdIsToken()) // JTI của token
+                    .expiryTime(token.getExpiryTime())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            invalidatedTokenRepository.save(invalidatedToken);
+            log.info("Token with JTI {} invalidated.", token.getIdIsToken());
+        }
+
+        // Xóa các token đã cấp phát để tránh dùng lại
+        issuedTokenRepository.deleteAll(tokens);
+    }
+
     private String generateAccessToken(User user) {
         return generateToken(user, VALID_DURATION, false);
     }
@@ -226,11 +249,13 @@ public class AuthenticationService {
         invalidatedTokenRepository.save(invalidatedToken);
     }
 
-    public String generateToken(User user, long duration, boolean isRefresh) {
+    private String generateToken(User user, long duration, boolean isRefresh) {
         ensureUserRolePermissionExists(user);
         String scope = buildScope(user);
 
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+        String jwtId = UUID.randomUUID().toString(); // Sinh JWT ID (JTI)
+
         JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
                 .issuer("kido.com")
@@ -238,12 +263,11 @@ public class AuthenticationService {
                 .expirationTime(new Date(
                         Instant.now().plus(duration, ChronoUnit.SECONDS).toEpochMilli()
                 ))
-                .jwtID(UUID.randomUUID().toString())
+                .jwtID(jwtId) // Gắn JTI vào token
                 .claim("isRefresh", isRefresh);
 
-
         if (!isRefresh) {
-            jwtClaimsSet.claim("scope", scope); // Chỉ thêm scope nếu là accessToken
+            jwtClaimsSet.claim("scope", scope);
         }
 
         Payload payload = new Payload(jwtClaimsSet.build().toJSONObject());
@@ -251,7 +275,20 @@ public class AuthenticationService {
 
         try {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-            return jwsObject.serialize();
+            String token = jwsObject.serialize();
+
+            // Lưu JTI vào bảng IssuedToken
+            IssuedToken issuedToken = IssuedToken.builder()
+                    .idIsToken(jwtId)
+                    .username(user.getUsername())
+                    .isRefresh(isRefresh)
+                    .expiryTime(jwtClaimsSet.build().getExpirationTime())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            issuedTokenRepository.save(issuedToken);
+
+            return token;
         } catch (JOSEException e) {
             log.error("Can't create token", e);
             throw new RuntimeException(e);
@@ -297,20 +334,6 @@ public class AuthenticationService {
                 userRolePermissionRepository.save(urp);
             });
         });
-    }
-
-    public void logoutUserTokens(User user) {
-        // Hủy tất cả token của user bằng cách thêm chúng vào bảng InvalidatedToken
-        String userId = user.getUserId();
-        log.info("Invalidating all tokens for user: {}", userId);
-
-        // Lấy danh sách các token đã cấp phát cho user từ bảng InvalidatedToken hoặc log (nếu cần)
-        // Đối với đơn giản, chỉ ghi log hoặc giả định tất cả token đã cấp đều bị hủy.
-        invalidatedTokenRepository.save(InvalidatedToken.builder()
-                .id(UUID.randomUUID().toString()) // Giả định một ID mới cho việc hủy
-                .expiryTime(new Date(System.currentTimeMillis() + 1000L)) // Thời gian hết hạn ngay lập tức
-                .createdAt(LocalDateTime.now())
-                .build());
     }
 
     @Scheduled(cron = "0 0 0 * * ?")  // Clean expired tokens daily
