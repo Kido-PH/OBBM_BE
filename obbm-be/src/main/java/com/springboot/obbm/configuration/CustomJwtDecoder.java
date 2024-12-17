@@ -33,13 +33,14 @@ public class CustomJwtDecoder implements JwtDecoder {
             var response = authenticationService.introspect(IntrospectRequest.builder()
                     .token(token)
                     .build());
-            if(!response.isValid())
-                throw new JwtException("invalid token");
+            if (!response.isValid()) {
+                throw new CustomJwtException("Invalid token");
+            }
         } catch (JOSEException | ParseException e) {
-            throw new JwtException(e.getMessage());
+            throw new CustomJwtException("Token parsing error: " + e.getMessage());
         }
 
-        if(Objects.isNull(nimbusJwtDecoder)){
+        if (Objects.isNull(nimbusJwtDecoder)) {
             SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
             nimbusJwtDecoder = NimbusJwtDecoder
                     .withSecretKey(secretKeySpec)

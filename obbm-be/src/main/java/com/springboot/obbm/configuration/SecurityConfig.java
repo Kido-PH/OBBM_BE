@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> {
                     request.requestMatchers(SWAGGER_ENDPOINTS).permitAll()
                             .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                            .anyRequest().permitAll();
+                            .anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
