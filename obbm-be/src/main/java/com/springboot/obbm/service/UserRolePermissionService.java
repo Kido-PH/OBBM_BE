@@ -31,6 +31,7 @@ public class UserRolePermissionService {
      RoleRepository roleRepository;
      PermissionRepository permissionRepository;
      UserRolePermissionMapper userRolePermissionMapper;
+     AuthenticationService authenticationService;
 
     @Transactional
     public UserRolePermissionResponse saveUserRolePermissions(UserRolePermissionRequest request) {
@@ -61,6 +62,7 @@ public class UserRolePermissionService {
         }
 
         userRolePermissionRepository.saveAll(userRolePermissions);
+        authenticationService.logoutUserTokens(user);
 
         return userRolePermissionMapper.toResponse(user, userRolePermissions);
     }

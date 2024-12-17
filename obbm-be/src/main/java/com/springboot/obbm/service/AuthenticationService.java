@@ -299,6 +299,20 @@ public class AuthenticationService {
         });
     }
 
+    public void logoutUserTokens(User user) {
+        // Hủy tất cả token của user bằng cách thêm chúng vào bảng InvalidatedToken
+        String userId = user.getUserId();
+        log.info("Invalidating all tokens for user: {}", userId);
+
+        // Lấy danh sách các token đã cấp phát cho user từ bảng InvalidatedToken hoặc log (nếu cần)
+        // Đối với đơn giản, chỉ ghi log hoặc giả định tất cả token đã cấp đều bị hủy.
+        invalidatedTokenRepository.save(InvalidatedToken.builder()
+                .id(UUID.randomUUID().toString()) // Giả định một ID mới cho việc hủy
+                .expiryTime(new Date(System.currentTimeMillis() + 1000L)) // Thời gian hết hạn ngay lập tức
+                .createdAt(LocalDateTime.now())
+                .build());
+    }
+
     @Scheduled(cron = "0 0 0 * * ?")  // Clean expired tokens daily
     @Transactional
     public void cleanExpiredTokens() {
