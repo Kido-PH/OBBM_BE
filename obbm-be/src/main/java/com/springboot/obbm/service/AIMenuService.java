@@ -22,179 +22,196 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AIMenuService {
 
-    ChatLanguageModel chatLanguageModel; // Tích hợp ChatGPT API qua LangChain4J
+    ChatLanguageModel chatLanguageModel;
     DishRepository dishRepository;
 
-    public List<MenuAIResponse> generateMenu(Integer eventId, double budget)  {
-        // Lấy danh sách món ăn hợp lệ theo sự kiện và ngân sách
+    public List<MenuAIResponse> generateMenu(Integer eventId, double budget) {
         List<Dish> validDishes = fetchValidDishes(eventId, budget);
 
-        // Tạo prompt gửi đến AI
         String prompt = createPrompt(validDishes, eventId, budget);
 
-        // Gọi API của AI để tạo menu
         String aiResponse = chatLanguageModel.generate(prompt);
 
-        // Phân tích và xác minh kết quả từ AI
         return parseAndValidateMenus(aiResponse, eventId, budget);
     }
 
     private List<Dish> fetchValidDishes(Integer eventId, double budget) {
         List<Dish> dishes = dishRepository.findByEventId(eventId);
         if (dishes.isEmpty()) {
-            log.warn("Không tìm thấy món ăn cho sự kiện: {}", eventId);
-            throw new IllegalArgumentException("Không có món ăn khả dụng cho sự kiện đã chọn.");
+            log.error("Không có món ăn nào khả dụng cho sự kiện: {}", eventId);
+            throw new IllegalArgumentException("Không có món ăn khả dụng.");
         }
-
-        // Lọc món ăn phù hợp với ngân sách
-        List<Dish> validDishes = dishes.stream()
+        return dishes.stream()
                 .filter(dish -> dish.getPrice() <= budget)
                 .collect(Collectors.toList());
-
-        if (validDishes.isEmpty()) {
-            log.warn("Không có món ăn phù hợp với ngân sách: {}", budget);
-            throw new IllegalArgumentException("Không có món ăn khả dụng trong khoảng ngân sách đã chọn.");
-        }
-        return validDishes;
     }
 
     private String createPrompt(List<Dish> dishes, Integer eventId, double budget) {
-        StringBuilder dishList = new StringBuilder();
-        dishes.forEach(dish -> dishList.append(String.format("- %d: %s (%.2f)\n",
-                dish.getDishId(), dish.getName(), dish.getPrice())));
+        // Xây dựng danh sách món ăn từ danh sách dishes
+        String dishList = dishes.stream()
+                .map(dish -> String.format(
+                        "- %d: %s (%.2f) [Category: %s]",
+                        dish.getDishId(), dish.getName(), dish.getPrice(), dish.getCategories().getName()
+                ))
+                .collect(Collectors.joining("\n"));
 
+        // Tạo prompt dựa trên template
         return String.format(
                 """
                 You are an AI assistant tasked with creating menus for an event.
-                
+    
                 **Event Details:**
                 - Event ID: %s
                 - Target budget per menu: %.2f (Each menu **must** be within ±10,000 of this budget).
-                
+    
                 **Available Dishes:**
                 %s
-                
+    
+                **Dish Categories and Instructions:**
+                - Appetizers (Khai vị): At least 1 and at most 3 dishes.
+                - Desserts (Tráng miệng): At least 1 and at most 3 dishes.
+                - Drinks (Thức uống): At least 1 and at most 3 dishes.
+                - Combined total of Appetizers, Desserts, and Drinks should be between 3 and 9 dishes.
+                - Add Main Courses to reach the target budget without exceeding it.
+
                 **Instructions for Menu Creation:**
                 - Create **exactly 2 menus**.
-                - For each menu, start adding dishes from the list, one by one, starting with the first dish.
-                - Stop adding dishes once the total cost exceeds the upper limit of the budget range (%.2f).
-                - Only include dishes that are summed up before the total exceeds the budget. The menu should be finalized once the budget limit is reached.
-                - Ensure each menu's total cost falls within the range [%.2f, %.2f].
-                - Minimize overlap of dishes between the two menus to ensure diversity.
-                
+                - Start by adding dishes from each category, ensuring the specified limits for appetizers, desserts, and drinks are met.
+                - Once the minimum category requirements are satisfied, prioritize adding main courses to maximize the total cost, aiming to approach the budget.
+                - Stop adding dishes if the total cost exceeds the upper budget range (%.2f). If adding a dish would exceed the budget, skip it.
+                - Minimize dish repetition between the two menus to ensure diversity.
+    
                 **Response Requirements:**
                 - The response **must** be valid JSON with the following structure:
                 {
                   "menus": [
                     {
                       "listDish": [
-                        { "dishId": 1, "name": "", "price": 0.0 }
+                        { "dishId": 1, "name": "", "price": 0.0, "category": "" }
                       ],
                       "totalCost": 0.0
                     },
                     {
                       "listDish": [
-                        { "dishId": 50, "name": "", "price": 0.0 }
+                        { "dishId": 50, "name": "", "price": 0.0, "category": "" }
                       ],
                       "totalCost": 0.0
                     }
                   ]
                 }
-                
+    
                 **Important Notes:**
-                - Menus outside the budget range will be rejected.
-                - Invalid JSON will be rejected.
-                - Focus on summing the dish prices incrementally. If adding a dish exceeds the upper limit of the budget, stop and finalize the menu.
-                - Aim for maximum diversity between the two menus by minimizing repeated dishes.
+                - Each menu's total cost must fall within the range [%.2f, %.2f].
+                - Menus that exceed the budget range or are invalid will be rejected.
+                - Aim for diversity by minimizing repeated dishes between the two menus.
+                - Prioritize meeting the category requirements first, then maximize the total cost by adding main courses.
                 """,
                 eventId, budget, dishList, budget + 10000, budget - 10000, budget + 10000
         );
     }
 
-    private List<MenuAIResponse> parseAndValidateMenus(String aiResponse,  Integer eventId, double budget) {
+    private List<MenuAIResponse> parseAndValidateMenus(String aiResponse, Integer eventId, double budget) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(aiResponse);
             JsonNode menuNodes = rootNode.get("menus");
 
             if (menuNodes == null || !menuNodes.isArray()) {
-                log.warn("Phản hồi AI không hợp lệ: thiếu trường 'menus'.");
-                throw new IllegalArgumentException("Phản hồi AI không chứa 'menus'.");
+                throw new IllegalArgumentException("Phản hồi AI không hợp lệ.");
             }
 
             List<MenuAIResponse> menus = new ArrayList<>();
             for (JsonNode menuNode : menuNodes) {
-                MenuAIResponse menu = parseSingleMenu(menuNode, eventId, budget);
-                menus.add(menu);
+                menus.add(completeMenu(menuNode, eventId, budget));
             }
 
             return menus;
         } catch (JsonProcessingException e) {
-            log.error("Không thể phân tích phản hồi AI.", e);
-            throw new RuntimeException("Lỗi phân tích phản hồi từ AI.");
+            log.error("Lỗi khi phân tích phản hồi từ AI", e);
+            throw new RuntimeException("Lỗi phản hồi từ AI.");
         }
     }
 
-    private MenuAIResponse parseSingleMenu(JsonNode menuNode, Integer eventId, double budget) {
+    private MenuAIResponse completeMenu(JsonNode menuNode, Integer eventId, double budget) {
         Set<Integer> existingDishIds = new HashSet<>();
         List<MenuAIResponse.DishAIResponse> dishResponses = new ArrayList<>();
         double totalCost = 0;
 
-        JsonNode dishes = menuNode.get("listDish");
-        if (dishes != null && dishes.isArray()) {
-            for (JsonNode dishNode : dishes) {
-                int dishId = dishNode.get("dishId").asInt();
-                if (existingDishIds.contains(dishId)) {
-                    log.warn("Món ăn trùng lặp (dishId={}): bỏ qua.", dishId);
-                    continue;
-                }
+        // Xử lý các món đã được trả về từ AI
+        totalCost = processExistingDishes(menuNode, existingDishIds, dishResponses, totalCost);
 
-                String name = dishNode.get("name").asText();
-                double price = dishNode.get("price").asDouble();
-                existingDishIds.add(dishId);
-
-                // Truy vấn thông tin danh mục từ cơ sở dữ liệu
-                Optional<Dish> dishOptional = dishRepository.findByDishIdAndDeletedAtIsNull(dishId);
-                String category = dishOptional.map(d -> d.getCategories().getName()).orElse("Unknown");
-
-                totalCost += price;
-                dishResponses.add(new MenuAIResponse.DishAIResponse(dishId, name, price, category));
-            }
-        }
-
-        // Xác minh tổng chi phí và thêm món nếu cần
+        // Bổ sung thêm món ăn để đạt ngân sách
         if (totalCost < budget) {
-            log.info("Total cost ({}) thấp hơn mức tối thiểu của ngân sách. Đang thêm món ăn bổ sung...", totalCost);
-
-            // Sử dụng eventId để lấy danh sách món hợp lệ
-            List<Dish> validDishes = fetchValidDishes(eventId, budget); // Truyền đúng eventId
-            validDishes.sort((d1, d2) -> Double.compare(d2.getPrice(), d1.getPrice())); // Sắp xếp giảm dần
-
-            // Tìm và thêm các món để đạt gần budget nhất
-            for (Dish dish : validDishes) {
-                if (totalCost + dish.getPrice() <= budget) {
-                    dishResponses.add(new MenuAIResponse.DishAIResponse(
-                            dish.getDishId(),
-                            dish.getName(),
-                            dish.getPrice(),
-                            dish.getCategories().getName()
-                    ));
-                    totalCost += dish.getPrice();
-                }
-                if (totalCost >= budget) {
-                    break;
-                }
-            }
-
-            if (totalCost < budget) {
-                log.warn("Không thể đạt đủ ngân sách tối thiểu sau khi thêm món ăn. Tổng hiện tại: {}", totalCost);
-            }
+            List<Dish> validDishes = fetchValidDishes(eventId, budget);
+            totalCost = fillRemainingBudget(validDishes, existingDishIds, dishResponses, totalCost, budget);
         }
 
         return MenuAIResponse.builder()
                 .listDish(dishResponses)
                 .totalCost(totalCost)
                 .build();
+    }
+
+    private double fillRemainingBudget(List<Dish> validDishes, Set<Integer> existingDishIds,
+                                       List<MenuAIResponse.DishAIResponse> dishResponses,
+                                       double totalCost, double budget) {
+        log.info("Bắt đầu bổ sung món ăn để đạt ngân sách...");
+
+        List<Dish> remainingDishes = validDishes.stream()
+                .filter(dish -> !existingDishIds.contains(dish.getDishId()))
+                .sorted(Comparator.comparingDouble(Dish::getPrice))
+                .toList();
+
+        for (Dish dish : remainingDishes) {
+            if (totalCost + dish.getPrice() <= budget) {
+                dishResponses.add(new MenuAIResponse.DishAIResponse(
+                        dish.getDishId(), dish.getName(), dish.getPrice(), dish.getCategories().getName()
+                ));
+                existingDishIds.add(dish.getDishId());
+                totalCost += dish.getPrice();
+                log.info("Đã bổ sung món: {} - Giá: {}", dish.getName(), dish.getPrice());
+            }
+            if (totalCost >= budget) break;
+        }
+
+        log.info("Ngân sách sau khi bổ sung: {}", totalCost);
+        return totalCost;
+    }
+
+    private double processExistingDishes(JsonNode menuNode, Set<Integer> existingDishIds,
+                                         List<MenuAIResponse.DishAIResponse> dishResponses,
+                                         double totalCost) {
+        int appetizerCount = 0, dessertCount = 0, drinkCount = 0;
+
+        JsonNode dishes = menuNode.get("listDish");
+        if (dishes != null && dishes.isArray()) {
+            for (JsonNode dishNode : dishes) {
+                int dishId = dishNode.get("dishId").asInt();
+                if (existingDishIds.contains(dishId)) continue;
+
+                String name = dishNode.get("name").asText();
+                double price = dishNode.get("price").asDouble();
+
+                String category = dishRepository.findByDishIdAndDeletedAtIsNull(dishId)
+                        .map(d -> d.getCategories().getName())
+                        .orElse("Unknown");
+
+                // Kiểm soát số lượng món theo loại
+                if (category.equalsIgnoreCase("Appetizers") && appetizerCount >= 3) continue;
+                if (category.equalsIgnoreCase("Desserts") && dessertCount >= 3) continue;
+                if (category.equalsIgnoreCase("Beverages") && drinkCount >= 3) continue;
+
+                // Đếm số món theo loại
+                if (category.equalsIgnoreCase("Appetizers")) appetizerCount++;
+                if (category.equalsIgnoreCase("Desserts")) dessertCount++;
+                if (category.equalsIgnoreCase("Beverages")) drinkCount++;
+
+                existingDishIds.add(dishId);
+                totalCost += price;
+                dishResponses.add(new MenuAIResponse.DishAIResponse(dishId, name, price, category));
+            }
+        }
+        return totalCost;
     }
 }
 

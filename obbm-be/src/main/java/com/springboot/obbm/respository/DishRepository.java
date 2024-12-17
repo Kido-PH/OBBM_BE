@@ -17,6 +17,6 @@ public interface DishRepository extends JpaRepository<Dish, Integer> {
 
     Optional<Dish> findByDishIdAndDeletedAtIsNull(int id);
 
-    @Query("SELECT d FROM dish d JOIN d.event e WHERE e.eventId = :eventId")
+    @Query("SELECT d FROM dish d JOIN d.categories c JOIN d.event e WHERE e.eventId = :eventId")
     List<Dish> findByEventId(@Param("eventId") Integer eventId);
 }

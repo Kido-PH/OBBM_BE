@@ -17,4 +17,5 @@ public class LocationForContractResponse {
     int table;
     double cost;
     String description;
+    Boolean isCustom;
 }
